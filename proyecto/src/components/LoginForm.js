@@ -1,54 +1,54 @@
 // src/components/LoginForm.js
 import React, { useState } from 'react';
 
-const LoginForm = ({ handleLogin }) => {
+function LoginForm({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [userType, setUserType] = useState('club'); // Valor por defecto para el tipo de usuario
+  const [userType, setUserType] = useState('club');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Aquí podrías realizar validaciones adicionales si lo deseas
-
-    // Llamar a la función handleLogin del padre con los datos del formulario
-    handleLogin(username, password, userType);
+    if (!username || !password) {
+      alert('Por favor, complete todos los campos.');
+      return;
+    }
+    onLogin(userType);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Login</h2>
-      <label>
-        Usuario:
+    <form onSubmit={handleSubmit} className="form">
+      <h2>Login</h2> {/* Título agregado */}
+      <div>
+        <label>Usuario:</label>
         <input
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
         />
-      </label>
-      <br />
-      <label>
-        Contraseña:
+      </div>
+      <div>
+        <label>Contraseña:</label>
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-      </label>
-      <br />
-      <label>
-        Tipo de Usuario:
-        <select value={userType} onChange={(e) => setUserType(e.target.value)}>
+      </div>
+      <div>
+        <label>Tipo de Usuario:</label>
+        <select
+          value={userType}
+          onChange={(e) => setUserType(e.target.value)}
+        >
           <option value="club">Club</option>
           <option value="seguidor">Seguidor</option>
         </select>
-      </label>
-      <br />
-      <button type="submit">Iniciar Sesión</button>
+      </div>
+      <button type="submit">Login</button>
     </form>
   );
-};
+}
 
 export default LoginForm;
-

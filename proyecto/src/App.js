@@ -1,60 +1,56 @@
 // src/App.js
 import React, { useState } from 'react';
+import ClubDashboard from './components/ClubDashboard';
 import LoginForm from './components/LoginForm';
-import CreateEventForm from './components/CreateEventForm';
-import './App.css';
+import './App.css'; // Importa el archivo CSS
 
 function App() {
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userType, setUserType] = useState('');
   const [events, setEvents] = useState([]);
-  const [showCreateEventForm, setShowCreateEventForm] = useState(false); // Estado para controlar la visibilidad del formulario
+  const [followers, setFollowers] = useState([]);
 
-  const handleLogin = (username, password, type) => {
-    // Simulación de autenticación
-    setLoggedIn(true);
+  const handleLogin = (type) => {
+    setIsLoggedIn(true);
     setUserType(type);
   };
 
-  const handleCreateEvent = (newEvent) => {
-    // Agregar el nuevo evento al estado de eventos
-    setEvents([...events, newEvent]);
-    // Puedes agregar aquí la lógica para guardar el evento en tu backend si lo tienes
-    console.log('Nuevo evento creado:', newEvent);
-    // Ocultar el formulario después de crear el evento
-    setShowCreateEventForm(false);
+  const handleCreateEvent = (event) => {
+    setEvents([...events, event]);
   };
 
-  const showCreateEventFormHandler = () => {
-    setShowCreateEventForm(true);
+  const handleLinkFollower = (email) => {
+    setFollowers([...followers, email]);
+    alert('Seguidor vinculado correctamente.');
   };
+
+  const handleNotifyFollowers = (message) => {
+    if (followers.length === 0) {
+      alert('No se puede enviar el mensaje, no hay usuarios vinculados.');
+    } else {
+      console.log(`Mensaje enviado a los seguidores: ${message}`);
+      alert('Los usuarios han sido notificados correctamente.');
+    }
+  };
+
+  if (!isLoggedIn) {
+    return <LoginForm onLogin={handleLogin} />;
+  }
 
   return (
     <div className="App">
-      {!loggedIn ? (
-        <LoginForm handleLogin={handleLogin} />
-      ) : (
+      {userType === 'club' && (
+        <ClubDashboard
+          events={events}
+          onCreateEvent={handleCreateEvent}
+          onLinkFollower={handleLinkFollower}
+          onNotifyFollowers={handleNotifyFollowers}
+        />
+      )}
+      {userType === 'seguidor' && (
         <div>
-          <h1>Bienvenido {userType === 'club' ? 'Club' : 'Seguidor'}</h1>
-          {userType === 'club' && (
-            <div>
-              {!showCreateEventForm ? (
-                <button onClick={showCreateEventFormHandler}>Crear Evento Deportivo</button>
-              ) : (
-                <CreateEventForm onCreateEvent={handleCreateEvent} />
-              )}
-              <h2>Eventos Creados</h2>
-              <ul>
-                {events.length > 0 ? (
-                  events.map((event, index) => (
-                    <li key={index}>{event.name} - {event.date}</li>
-                  ))
-                ) : (
-                  <li>No hay eventos creados</li>
-                )}
-              </ul>
-            </div>
-          )}
+          <h1>Seguidor Dashboard</h1>
+          {/* Aquí irán las funcionalidades del seguidor */}
         </div>
       )}
     </div>
@@ -62,7 +58,3 @@ function App() {
 }
 
 export default App;
-
-
-
-
