@@ -24,14 +24,24 @@ public class Club {
     @Column(name = "id_club")
     private Long idClub;
 
-    @Column(name = "nombre", nullable = false, length = 300)
+    @Column(name = "nombre")
     private String nombre;
 
-    @Column(name = "correo_electronico", nullable = false, length = 200)
+    @Column(name = "correo_electronico")
     private String correoElectronico;
 
-    @Column(name = "estadio_propio", nullable = false, length = 300)
+    @Column(name = "estadio_propio")
     private String estadioPropio;
+
+    public Club() {
+    }
+
+    public Club(Long idClub, String nombre, String correoElectronico, String estadioPropio) {
+        this.idClub = idClub;
+        this.nombre = nombre;
+        this.correoElectronico = correoElectronico;
+        this.estadioPropio = estadioPropio;
+    }
 
     // Getters and Setters
     public Long getIdClub() {
