@@ -1,6 +1,7 @@
-// src/App.js
+// src/pages/IndexPagina.js
 import React, { useState } from 'react';
 import ClubDashboard from './ClubDashboard';
+import SeguidorDashboard from './SeguidorDashboard';
 import LoginForm from './LoginForm';
 
 function IndexPagina() {
@@ -47,10 +48,9 @@ function IndexPagina() {
         />
       )}
       {userType === 'seguidor' && (
-        <div>
-          <h1>Seguidor Dashboard</h1>
-          {/* Aquí irán las funcionalidades del seguidor */}
-        </div>
+        <SeguidorDashboard
+          events={events}
+        />
       )}
     </div>
   );
