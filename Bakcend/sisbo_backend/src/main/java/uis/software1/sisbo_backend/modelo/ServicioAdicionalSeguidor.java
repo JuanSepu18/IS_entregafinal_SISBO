@@ -13,7 +13,7 @@ public class ServicioAdicionalSeguidor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_servicio_seguidor")
-    private Long idServicioSeguidor;
+    private Long id_servicio_seguidor;
 
     @Column(name = "nombre")
     private String nombre;
@@ -36,11 +36,11 @@ public class ServicioAdicionalSeguidor {
 
     // Getters y Setters
     public Long getIdServicioSeguidor() {
-        return idServicioSeguidor;
+        return id_servicio_seguidor;
     }
 
-    public void setIdServicioSeguidor(Long idServicioSeguidor) {
-        this.idServicioSeguidor = idServicioSeguidor;
+    public void setIdServicioSeguidor(Long id_servicio_seguidor) {
+        this.id_servicio_seguidor = id_servicio_seguidor;
     }
 
     public String getNombre() {
@@ -67,4 +67,3 @@ public class ServicioAdicionalSeguidor {
         this.seguidor = seguidor;
     }
 }
-

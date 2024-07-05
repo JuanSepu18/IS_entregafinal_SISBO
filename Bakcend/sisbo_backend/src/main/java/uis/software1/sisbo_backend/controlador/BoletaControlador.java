@@ -17,67 +17,59 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import uis.software1.sisbo_backend.modelo.Club;
-import uis.software1.sisbo_backend.servicio.ClubServicio;
+import uis.software1.sisbo_backend.modelo.Boleta;
+import uis.software1.sisbo_backend.servicio.BoletaServicio;
 
-/**
- *
- * @author Carlos
- */
 @RestController
 @CrossOrigin("*")
-@RequestMapping("/api/Club")
-public class ClubControlador {
-    
+@RequestMapping("/api/Boleta")
+public class BoletaControlador {
+
     @Autowired
-    ClubServicio clubServicio;
-    
-    //Listar
+    BoletaServicio boletaServicio;
+
+    // Listar
     @GetMapping("/list")
-    public List<Club> listarClubs(){
-        return clubServicio.getClub();
+    public List<Boleta> listarBoletas() {
+        return boletaServicio.getBoleta();
     }
-    
-    //Buscar por ID
+
+    // Buscar por ID
     @GetMapping("/list/{id}")
-    public Club buscarPorId(@PathVariable Long id){
-        return clubServicio.buscarClub(id);
+    public Boleta buscarPorId(@PathVariable Long id) {
+        return boletaServicio.buscarBoleta(id);
     }
-    
-    //Crear
+
+    // Crear
     @PostMapping("/")
-    public ResponseEntity<Club> agregar(@RequestBody Club club){
-        Club obj = clubServicio.nuevoClub(club);
+    public ResponseEntity<Boleta> agregar(@RequestBody Boleta boleta) {
+        Boleta obj = boletaServicio.nuevaBoleta(boleta);
         return new ResponseEntity<>(obj, HttpStatus.OK);
     }
-    
-    
-    
-    //Actualizar
+
+    // Actualizar
     @PutMapping("/")
-    public ResponseEntity<Club> actualizar(@RequestBody Club club){
-        Club obj = clubServicio.buscarClub(club.getIdClub());
-        if(obj != null){
-            obj.setCorreoElectronico(club.getCorreoElectronico());
-            obj.setEstadioPropio(club.getEstadioPropio());
-            obj.setNombre(club.getNombre());
+    public ResponseEntity<Boleta> actualizar(@RequestBody Boleta boleta) {
+        Boleta obj = boletaServicio.buscarBoleta(boleta.getIdBoleta());
+        if (obj != null) {
+            obj.setMercadoSecundario(boleta.getMercadoSecundario());
+            obj.setPrecio(boleta.getPrecio());
+            obj.setSeguidor(boleta.getSeguidor());
             
-            clubServicio.nuevoClub(obj);
-        } else{
+            boletaServicio.nuevaBoleta(obj);
+        } else {
             return new ResponseEntity<>(obj, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(obj, HttpStatus.OK);
     }
-    
-    
-    
-    //Borrar
+
+    // Borrar
     @DeleteMapping("/{id}")
-    public ResponseEntity<Club> borrar(@PathVariable Long id){
-        Club obj = clubServicio.buscarClub(id);
-        if(obj != null){
-            clubServicio.borrarClub(id);
-        } else{
+    public ResponseEntity<Boleta> borrar(@PathVariable Long id) {
+        Boleta obj = boletaServicio.buscarBoleta(id);
+        if (obj != null) {
+            boletaServicio.borrarBoleta(id);
+        } else {
             return new ResponseEntity<>(obj, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(obj, HttpStatus.OK);

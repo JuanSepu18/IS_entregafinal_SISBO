@@ -13,7 +13,7 @@ public class ServicioAdicionalClub {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_servicio_club")
-    private Long idServicioClub;
+    private Long id_servicio_club;
 
     @Column(name = "nombre")
     private String nombre;
@@ -24,11 +24,11 @@ public class ServicioAdicionalClub {
     @Column(name = "precio")
     private Integer precio;
 
-    @Column(name = "unidades_maximas")
-    private Integer unidadesMaximas;
+    @Column(name = "unidades_totales")
+    private Integer unidades_totales;
 
     @Column(name = "unidades_vendidas")
-    private Integer unidadesVendidas;
+    private Integer unidades_vendidas;
 
     @ManyToOne
     @JoinColumn(name = "id_club")
@@ -37,22 +37,22 @@ public class ServicioAdicionalClub {
     public ServicioAdicionalClub() {
     }
 
-    public ServicioAdicionalClub(String nombre, String descripcion, Integer precio, Integer unidadesMaximas, Integer unidadesVendidas, Club club) {
+    public ServicioAdicionalClub(Long id_servicio_club, String nombre, String descripcion, Integer precio, Integer unidades_totales, Integer unidades_vendidas, Club club) {
+        this.id_servicio_club = id_servicio_club;
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.precio = precio;
-        this.unidadesMaximas = unidadesMaximas;
-        this.unidadesVendidas = unidadesVendidas;
+        this.unidades_totales = unidades_totales;
+        this.unidades_vendidas = unidades_vendidas;
         this.club = club;
     }
 
-    // Getters y Setters
-    public Long getIdServicioClub() {
-        return idServicioClub;
+    public Long getId_servicio_club() {
+        return id_servicio_club;
     }
 
-    public void setIdServicioClub(Long idServicioClub) {
-        this.idServicioClub = idServicioClub;
+    public void setId_servicio_club(Long id_servicio_club) {
+        this.id_servicio_club = id_servicio_club;
     }
 
     public String getNombre() {
@@ -79,20 +79,20 @@ public class ServicioAdicionalClub {
         this.precio = precio;
     }
 
-    public Integer getUnidadesMaximas() {
-        return unidadesMaximas;
+    public Integer getUnidades_totales() {
+        return unidades_totales;
     }
 
-    public void setUnidadesMaximas(Integer unidadesMaximas) {
-        this.unidadesMaximas = unidadesMaximas;
+    public void setUnidades_totales(Integer unidades_totales) {
+        this.unidades_totales = unidades_totales;
     }
 
-    public Integer getUnidadesVendidas() {
-        return unidadesVendidas;
+    public Integer getUnidades_vendidas() {
+        return unidades_vendidas;
     }
 
-    public void setUnidadesVendidas(Integer unidadesVendidas) {
-        this.unidadesVendidas = unidadesVendidas;
+    public void setUnidades_vendidas(Integer unidades_vendidas) {
+        this.unidades_vendidas = unidades_vendidas;
     }
 
     public Club getClub() {
@@ -102,5 +102,6 @@ public class ServicioAdicionalClub {
     public void setClub(Club club) {
         this.club = club;
     }
-}
 
+    
+}

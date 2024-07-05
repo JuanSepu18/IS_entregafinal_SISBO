@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import uis.software1.sisbo_backend.modelo.Club;
-import uis.software1.sisbo_backend.servicio.ClubServicio;
+import uis.software1.sisbo_backend.modelo.EventoDeportivo;
+import uis.software1.sisbo_backend.servicio.EventoServicio;
 
 /**
  *
@@ -26,43 +26,43 @@ import uis.software1.sisbo_backend.servicio.ClubServicio;
  */
 @RestController
 @CrossOrigin("*")
-@RequestMapping("/api/Club")
-public class ClubControlador {
+@RequestMapping("/api/Evento")
+public class EventoControlador {
     
     @Autowired
-    ClubServicio clubServicio;
+    EventoServicio eventoServicio;
     
     //Listar
     @GetMapping("/list")
-    public List<Club> listarClubs(){
-        return clubServicio.getClub();
+    public List<EventoDeportivo> listarEventos(){
+        return eventoServicio.getEvento();
     }
     
     //Buscar por ID
     @GetMapping("/list/{id}")
-    public Club buscarPorId(@PathVariable Long id){
-        return clubServicio.buscarClub(id);
+    public EventoDeportivo buscarPorId(@PathVariable Long id){
+        return eventoServicio.buscarEvento(id);
     }
     
     //Crear
     @PostMapping("/")
-    public ResponseEntity<Club> agregar(@RequestBody Club club){
-        Club obj = clubServicio.nuevoClub(club);
+    public ResponseEntity<EventoDeportivo> agregar(@RequestBody EventoDeportivo eventoDeportivo){
+        EventoDeportivo obj = eventoServicio.nuevoEvento(eventoDeportivo);
         return new ResponseEntity<>(obj, HttpStatus.OK);
     }
     
-    
-    
     //Actualizar
     @PutMapping("/")
-    public ResponseEntity<Club> actualizar(@RequestBody Club club){
-        Club obj = clubServicio.buscarClub(club.getIdClub());
+    public ResponseEntity<EventoDeportivo> actualizar(@RequestBody EventoDeportivo evento){
+        EventoDeportivo obj = eventoServicio.buscarEvento(evento.getId_evento());
         if(obj != null){
-            obj.setCorreoElectronico(club.getCorreoElectronico());
-            obj.setEstadioPropio(club.getEstadioPropio());
-            obj.setNombre(club.getNombre());
+            obj.setEstadio(evento.getEstadio());
+            obj.setFecha(evento.getFecha());
+            obj.setHora_cierre(evento.getHora_cierre());
+            obj.setHora_ingreso(evento.getHora_ingreso());
+            obj.setOponente(evento.getOponente());
             
-            clubServicio.nuevoClub(obj);
+            eventoServicio.nuevoEvento(obj);
         } else{
             return new ResponseEntity<>(obj, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -73,10 +73,10 @@ public class ClubControlador {
     
     //Borrar
     @DeleteMapping("/{id}")
-    public ResponseEntity<Club> borrar(@PathVariable Long id){
-        Club obj = clubServicio.buscarClub(id);
+    public ResponseEntity<EventoDeportivo> borrar(@PathVariable Long id){
+        EventoDeportivo obj = eventoServicio.buscarEvento(id);
         if(obj != null){
-            clubServicio.borrarClub(id);
+            eventoServicio.borrarClub(id);
         } else{
             return new ResponseEntity<>(obj, HttpStatus.INTERNAL_SERVER_ERROR);
         }

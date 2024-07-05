@@ -4,19 +4,8 @@
  */
 package uis.software1.sisbo_backend.modelo;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
-/**
- *
- * @author Carlos
- */
 @Entity
 @Table(name = "Boleta")
 public class Boleta {
@@ -28,18 +17,13 @@ public class Boleta {
 
     @Column(name = "precio")
     private Integer precio;
-
-    @ManyToOne
-    @JoinColumn(name = "id_evento")
-    private EventoDeportivo eventoDeportivo;
+    
+    @Column(name = "mercado_secundario")
+    private boolean mercado_secundario;
 
     @ManyToOne
     @JoinColumn(name = "id_localidad")
     private Localidad localidad;
-
-    @ManyToOne
-    @JoinColumn(name = "id_mercado_secundario")
-    private MercadoSecundario mercadoSecundario;
 
     @ManyToOne
     @JoinColumn(name = "id_seguidor")
@@ -48,21 +32,22 @@ public class Boleta {
     public Boleta() {
     }
 
-    public Boleta(Integer precio, EventoDeportivo eventoDeportivo, Localidad localidad, MercadoSecundario mercadoSecundario, Seguidor seguidor) {
+    public Boleta(Long id_boleta, Integer precio, boolean mercado_secundario, EventoDeportivo eventoDeportivo, Localidad localidad, Seguidor seguidor) {
+        this.id_boleta = id_boleta;
         this.precio = precio;
-        this.eventoDeportivo = eventoDeportivo;
+        this.mercado_secundario = mercado_secundario;
         this.localidad = localidad;
-        this.mercadoSecundario = mercadoSecundario;
         this.seguidor = seguidor;
     }
+
 
     // Getters y Setters
     public Long getIdBoleta() {
         return id_boleta;
     }
 
-    public void setIdBoleta(Long id_boleta) {
-        this.id_boleta = id_boleta;
+    public void setIdBoleta(Long idBoleta) {
+        this.id_boleta = idBoleta;
     }
 
     public Integer getPrecio() {
@@ -73,14 +58,6 @@ public class Boleta {
         this.precio = precio;
     }
 
-    public EventoDeportivo getEventoDeportivo() {
-        return eventoDeportivo;
-    }
-
-    public void setEventoDeportivo(EventoDeportivo eventoDeportivo) {
-        this.eventoDeportivo = eventoDeportivo;
-    }
-
     public Localidad getLocalidad() {
         return localidad;
     }
@@ -89,12 +66,12 @@ public class Boleta {
         this.localidad = localidad;
     }
 
-    public MercadoSecundario getMercadoSecundario() {
-        return mercadoSecundario;
+    public boolean getMercadoSecundario() {
+        return mercado_secundario;
     }
 
-    public void setMercadoSecundario(MercadoSecundario mercadoSecundario) {
-        this.mercadoSecundario = mercadoSecundario;
+    public void setMercadoSecundario(boolean mercado_secundario) {
+        this.mercado_secundario = mercado_secundario;
     }
 
     public Seguidor getSeguidor() {

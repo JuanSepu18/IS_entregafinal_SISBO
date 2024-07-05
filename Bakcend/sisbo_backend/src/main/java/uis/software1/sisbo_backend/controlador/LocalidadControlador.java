@@ -17,69 +17,63 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import uis.software1.sisbo_backend.modelo.Club;
-import uis.software1.sisbo_backend.servicio.ClubServicio;
+import uis.software1.sisbo_backend.modelo.Localidad;
+import uis.software1.sisbo_backend.servicio.LocalidadServicio;
 
-/**
- *
- * @author Carlos
- */
 @RestController
 @CrossOrigin("*")
-@RequestMapping("/api/Club")
-public class ClubControlador {
-    
+@RequestMapping("/api/Localidad")
+public class LocalidadControlador {
+
     @Autowired
-    ClubServicio clubServicio;
-    
-    //Listar
+    LocalidadServicio localidadServicio;
+
+    // Listar
     @GetMapping("/list")
-    public List<Club> listarClubs(){
-        return clubServicio.getClub();
+    public List<Localidad> listarLocalidades() {
+        return localidadServicio.getLocalidad();
     }
-    
-    //Buscar por ID
+
+    // Buscar por ID
     @GetMapping("/list/{id}")
-    public Club buscarPorId(@PathVariable Long id){
-        return clubServicio.buscarClub(id);
+    public Localidad buscarPorId(@PathVariable Long id) {
+        return localidadServicio.buscarLocalidad(id);
     }
     
-    //Crear
+    // Crear
     @PostMapping("/")
-    public ResponseEntity<Club> agregar(@RequestBody Club club){
-        Club obj = clubServicio.nuevoClub(club);
+    public ResponseEntity<Localidad> agregar(@RequestBody Localidad localidad) {
+        Localidad obj = localidadServicio.nuevaLocalidad(localidad);
         return new ResponseEntity<>(obj, HttpStatus.OK);
     }
-    
-    
-    
-    //Actualizar
+
+    // Actualizar
     @PutMapping("/")
-    public ResponseEntity<Club> actualizar(@RequestBody Club club){
-        Club obj = clubServicio.buscarClub(club.getIdClub());
-        if(obj != null){
-            obj.setCorreoElectronico(club.getCorreoElectronico());
-            obj.setEstadioPropio(club.getEstadioPropio());
-            obj.setNombre(club.getNombre());
-            
-            clubServicio.nuevoClub(obj);
-        } else{
+    public ResponseEntity<Localidad> actualizar(@RequestBody Localidad localidad) {
+        Localidad obj = localidadServicio.buscarLocalidad(localidad.getId_localidad());
+        if (obj != null) {
+            obj.setCantidad_puestos_total(localidad.getCantidad_puestos_total());
+            obj.setCantidad_puestos_vendidos(localidad.getCantidad_puestos_vendidos());
+            obj.setNombre(localidad.getNombre());
+            obj.setPrecio(localidad.getPrecio());
+
+            localidadServicio.nuevaLocalidad(obj);
+        } else {
             return new ResponseEntity<>(obj, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(obj, HttpStatus.OK);
     }
-    
-    
-    
-    //Borrar
+
+    // Borrar
     @DeleteMapping("/{id}")
-    public ResponseEntity<Club> borrar(@PathVariable Long id){
-        Club obj = clubServicio.buscarClub(id);
-        if(obj != null){
-            clubServicio.borrarClub(id);
-        } else{
+    public ResponseEntity<Localidad> borrar(@PathVariable Long id) {
+        Localidad obj = localidadServicio.buscarLocalidad(id);
+        if (obj != null) {
+            localidadServicio.borrarLocalidad(id);
+        } else {
             return new ResponseEntity<>(obj, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(obj, HttpStatus.OK);
     }
+    
 }
