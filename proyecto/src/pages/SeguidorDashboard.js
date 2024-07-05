@@ -10,6 +10,9 @@ function SeguidorDashboard({ events }) {
   ]);
   const [documento, setDocumento] = useState('');
   const [transferMessage, setTransferMessage] = useState('');
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [selectedLocality, setSelectedLocality] = useState('');
+  const [quantity, setQuantity] = useState(1);
 
   const handleToggleTickets = () => {
     setShowTickets(!showTickets);
@@ -30,7 +33,7 @@ function SeguidorDashboard({ events }) {
     // Simulando la transferencia de boletas
     const ticketToTransfer = tickets[0]; // Transferimos la primera boleta como ejemplo
     setTickets([]);
-    setTransferMessage(`Boleta transferida al número de documento ${documento}`);
+    setTransferMessage('Boleta transferida al número de documento ${documento}');
     setDocumento(''); // Limpiamos el campo de documento después de la transferencia
   };
 
@@ -47,10 +50,36 @@ function SeguidorDashboard({ events }) {
     setDocumento(e.target.value);
   };
 
-  const handleSeguirEvento = (eventId) => {
-    // Aquí puedes implementar la lógica para seguir un evento
-    console.log(`Siguiendo el evento con ID ${eventId}`);
-    // Por ejemplo, puedes enviar una solicitud al backend para seguir el evento
+  const handleComprarBoleta = (eventId) => {
+    const event = eventosEjemplo.find(e => e.id === eventId);
+    setSelectedEvent(event);
+  };
+
+  const handleLocalityChange = (e) => {
+    setSelectedLocality(e.target.value);
+  };
+
+  const handleQuantityChange = (e) => {
+    setQuantity(e.target.value);
+  };
+
+  const handleConfirmPurchase = () => {
+    if (!selectedLocality) {
+      alert('Por favor selecciona una localidad.');
+      return;
+    }
+
+    const newTicket = {
+      id: tickets.length + 1,
+      eventName: selectedEvent.name,
+      locality: selectedLocality,
+      quantity: Number(quantity),
+    };
+
+    setTickets([...tickets, newTicket]);
+    setSelectedEvent(null); // Resetea la selección de evento después de la compra
+    setSelectedLocality('');
+    setQuantity(1);
   };
 
   // Eventos de ejemplo con localidades
@@ -93,32 +122,65 @@ function SeguidorDashboard({ events }) {
 
       {/* Botones para ver boletas compradas y servicios adicionales */}
       <div className="mb-4">
-        <button className="btn btn-primary mr-2" onClick={handleToggleTickets}>Ver Boletas Compradas</button>
-        <button className="btn btn-primary" onClick={handleToggleServices}>Ver Servicios Adicionales</button>
+        <button className="btn btn-primary mr-2 btn-separate" onClick={handleToggleTickets}>Ver Boletas Compradas</button>
+        <button className="btn btn-primary btn-separate" onClick={handleToggleServices}>Ver Servicios Adicionales</button>
       </div>
 
       {/* Mostrar eventos disponibles */}
       <div className="mb-4">
         <h2>Eventos Disponibles</h2>
-        <ul className="list-group">
+        <div className="row">
           {eventosEjemplo.map((event) => (
-            <li key={event.id} className="list-group-item">
-              <strong>Nombre:</strong> {event.name} <br />
-              <strong>Fecha:</strong> {event.date} <br />
-              <strong>Ubicación:</strong> {event.location} <br />
-              <strong>Localidades:</strong>
-              <ul>
-                {event.localidades.map((localidad) => (
-                  <li key={localidad.id}>
-                    {localidad.name} - Capacidad: {localidad.capacity} - Boletas Vendidas: {localidad.boletasVendidas}
-                  </li>
-                ))}
-              </ul>
-              <button className="btn btn-primary mt-2" onClick={() => handleSeguirEvento(event.id)}>Seguir Evento</button>
-            </li>
+            <div key={event.id} className="col-md-4 mb-4">
+              <div className="card">
+                <div className="card-body">
+                  <strong>Nombre:</strong> {event.name} <br />
+                  <strong>Fecha:</strong> {event.date} <br />
+                  <strong>Ubicación:</strong> {event.location} <br />
+                  <strong>Localidades:</strong>
+                  <ul>
+                    {event.localidades.map((localidad) => (
+                      <li key={localidad.id}>
+                        {localidad.name} - Capacidad: {localidad.capacity} - Boletas Vendidas: {localidad.boletasVendidas}
+                      </li>
+                    ))}
+                  </ul>
+                  <button className="btn btn-primary mt-2" onClick={() => handleComprarBoleta(event.id)}>Comprar Boleta</button>
+                </div>
+              </div>
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
+
+      {/* Sección de compra de boletas */}
+      {selectedEvent && (
+        <div className="mt-4">
+          <h2>Comprar Boleta para {selectedEvent.name}</h2>
+          <div className="form-group">
+            <label htmlFor="localitySelect">Selecciona Localidad</label>
+            <select id="localitySelect" className="form-control" value={selectedLocality} onChange={handleLocalityChange}>
+              <option value="">Selecciona una localidad</option>
+              {selectedEvent.localidades.map((localidad) => (
+                <option key={localidad.id} value={localidad.name}>{localidad.name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="quantity">Cantidad de Boletas</label>
+            <input
+              type="number"
+              id="quantity"
+              className="form-control"
+              value={quantity}
+              onChange={handleQuantityChange}
+              min="1"
+              max="10"
+            />
+          </div>
+          <button className="btn btn-success mt-2" onClick={handleConfirmPurchase}>Confirmar Compra</button>
+        </div>
+      )}
 
       {/* Sección de boletas compradas */}
       {showTickets && (
