@@ -24,7 +24,7 @@ public class Seguidor {
     @Column(name = "nombre")
     private String nombre;
     
-    @Column(name = "correo")
+    @Column(name = "correo_electronico")
     private String correo_electronico;
     
     @Column(name = "contrasena")

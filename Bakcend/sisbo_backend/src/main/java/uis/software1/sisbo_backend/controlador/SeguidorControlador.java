@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import uis.software1.sisbo_backend.modelo.LoginSeguidor;
 import uis.software1.sisbo_backend.modelo.Seguidor;
 import uis.software1.sisbo_backend.servicio.SeguidorServicio;
 
@@ -77,5 +78,16 @@ public class SeguidorControlador {
             return new ResponseEntity<>(obj, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(obj, HttpStatus.OK);
+    }
+    
+    //Validar Login
+    @PostMapping("/loginseguidor")
+    public int login(@RequestBody LoginSeguidor seguidor){
+        return seguidorServicio.login(seguidor);
+    }
+    
+    @PostMapping("/login")
+    public ResponseEntity<?> loginUser(@RequestBody LoginSeguidor seguidor){
+        return seguidorServicio.ingresar(seguidor);
     }
 }

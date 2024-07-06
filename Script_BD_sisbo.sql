@@ -26,8 +26,8 @@ CREATE TABLE IF NOT EXISTS `boleta` (
   PRIMARY KEY (`id_boleta`),
   KEY `id_localidad` (`id_localidad`),
   KEY `id_seguidor` (`id_seguidor`),
-  CONSTRAINT `boleta_ibfk_2` FOREIGN KEY (`id_localidad`) REFERENCES `localidad` (`id_localidad`),
-  CONSTRAINT `boleta_ibfk_4` FOREIGN KEY (`id_seguidor`) REFERENCES `seguidor` (`documento_de_identidad`)
+  CONSTRAINT `boleta_ibfk_2` FOREIGN KEY (`id_localidad`) REFERENCES `localidad` (`id_localidad`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `boleta_ibfk_4` FOREIGN KEY (`id_seguidor`) REFERENCES `seguidor` (`documento_de_identidad`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
 
 -- Volcando datos para la tabla sisbo.boleta: ~3 rows (aproximadamente)
@@ -43,15 +43,16 @@ CREATE TABLE IF NOT EXISTS `club` (
   `id_club` int(11) NOT NULL AUTO_INCREMENT,
   `nombre` varchar(300) COLLATE utf8_spanish2_ci NOT NULL,
   `correo_electronico` varchar(200) COLLATE utf8_spanish2_ci NOT NULL,
+  `contrasena` varchar(100) COLLATE utf8_spanish2_ci NOT NULL,
   `estadio_propio` varchar(300) COLLATE utf8_spanish2_ci NOT NULL,
   PRIMARY KEY (`id_club`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
 
 -- Volcando datos para la tabla sisbo.club: ~2 rows (aproximadamente)
 /*!40000 ALTER TABLE `club` DISABLE KEYS */;
-INSERT INTO `club` (`id_club`, `nombre`, `correo_electronico`, `estadio_propio`) VALUES
-	(1, 'Atletico Bucaramanga', 'AtleticoBga@gmail.com', 'Americo Montanini'),
-	(2, 'Atletico Nacional', 'AtleticoNacional@gmail.com', 'Atanasio Girardot');
+INSERT INTO `club` (`id_club`, `nombre`, `correo_electronico`, `contrasena`, `estadio_propio`) VALUES
+	(1, 'Atletico bucaramanga', 'AtleticoBga@gmail.com', 'bucaramanga123', 'Americo montanini'),
+	(4, 'Atletico Nacional', 'AtleticoNacional@gmail.com', 'nacional123', 'asdasd');
 /*!40000 ALTER TABLE `club` ENABLE KEYS */;
 
 -- Volcando estructura para tabla sisbo.club_correovinculado
@@ -59,7 +60,7 @@ CREATE TABLE IF NOT EXISTS `club_correovinculado` (
   `id_club` int(11) NOT NULL,
   `correo` varchar(255) COLLATE utf8_spanish2_ci NOT NULL,
   PRIMARY KEY (`id_club`,`correo`),
-  CONSTRAINT `club_correovinculado_ibfk_1` FOREIGN KEY (`id_club`) REFERENCES `club` (`id_club`)
+  CONSTRAINT `club_correovinculado_ibfk_1` FOREIGN KEY (`id_club`) REFERENCES `club` (`id_club`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
 
 -- Volcando datos para la tabla sisbo.club_correovinculado: ~0 rows (aproximadamente)
@@ -69,15 +70,15 @@ CREATE TABLE IF NOT EXISTS `club_correovinculado` (
 -- Volcando estructura para tabla sisbo.eventodeportivo
 CREATE TABLE IF NOT EXISTS `eventodeportivo` (
   `id_evento` int(11) NOT NULL AUTO_INCREMENT,
-  `oponente` varchar(255) COLLATE utf8_spanish2_ci DEFAULT NULL,
-  `estadio` varchar(255) COLLATE utf8_spanish2_ci DEFAULT NULL,
-  `fecha` date DEFAULT NULL,
-  `hora_ingreso` varchar(100) COLLATE utf8_spanish2_ci DEFAULT NULL,
-  `hora_cierre` varchar(100) COLLATE utf8_spanish2_ci DEFAULT NULL,
+  `oponente` varchar(255) COLLATE utf8_spanish2_ci NOT NULL,
+  `estadio` varchar(255) COLLATE utf8_spanish2_ci NOT NULL,
+  `fecha` date NOT NULL,
+  `hora_ingreso` varchar(100) COLLATE utf8_spanish2_ci NOT NULL,
+  `hora_cierre` varchar(100) COLLATE utf8_spanish2_ci NOT NULL,
   `id_club` int(11) DEFAULT NULL,
   PRIMARY KEY (`id_evento`),
   KEY `id_club` (`id_club`),
-  CONSTRAINT `eventodeportivo_ibfk_1` FOREIGN KEY (`id_club`) REFERENCES `club` (`id_club`)
+  CONSTRAINT `eventodeportivo_ibfk_1` FOREIGN KEY (`id_club`) REFERENCES `club` (`id_club`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
 
 -- Volcando datos para la tabla sisbo.eventodeportivo: ~0 rows (aproximadamente)
@@ -96,7 +97,7 @@ CREATE TABLE IF NOT EXISTS `localidad` (
   `id_evento` int(11) DEFAULT NULL,
   PRIMARY KEY (`id_localidad`),
   KEY `id_evento` (`id_evento`),
-  CONSTRAINT `localidad_ibfk_1` FOREIGN KEY (`id_evento`) REFERENCES `eventodeportivo` (`id_evento`)
+  CONSTRAINT `localidad_ibfk_1` FOREIGN KEY (`id_evento`) REFERENCES `eventodeportivo` (`id_evento`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
 
 -- Volcando datos para la tabla sisbo.localidad: ~2 rows (aproximadamente)
@@ -110,14 +111,14 @@ INSERT INTO `localidad` (`id_localidad`, `nombre`, `precio`, `cantidad_puestos_t
 CREATE TABLE IF NOT EXISTS `seguidor` (
   `documento_de_identidad` varchar(20) COLLATE utf8_spanish2_ci NOT NULL,
   `nombre` varchar(255) COLLATE utf8_spanish2_ci NOT NULL,
-  `correo` varchar(255) COLLATE utf8_spanish2_ci NOT NULL,
+  `correo_electronico` varchar(255) COLLATE utf8_spanish2_ci NOT NULL,
   `contrasena` varchar(255) COLLATE utf8_spanish2_ci NOT NULL,
   PRIMARY KEY (`documento_de_identidad`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
 
 -- Volcando datos para la tabla sisbo.seguidor: ~2 rows (aproximadamente)
 /*!40000 ALTER TABLE `seguidor` DISABLE KEYS */;
-INSERT INTO `seguidor` (`documento_de_identidad`, `nombre`, `correo`, `contrasena`) VALUES
+INSERT INTO `seguidor` (`documento_de_identidad`, `nombre`, `correo_electronico`, `contrasena`) VALUES
 	('111111111111111', 'Juan Sepulveda', 'Juan123@gmail.com', 'juan123'),
 	('1234567890', 'Carlos Garcia', 'Carlos123@gmail.com', 'carlos1234');
 /*!40000 ALTER TABLE `seguidor` ENABLE KEYS */;
@@ -133,10 +134,10 @@ CREATE TABLE IF NOT EXISTS `servicioadicionalclub` (
   `id_club` int(11) NOT NULL,
   PRIMARY KEY (`id_servicio_club`),
   KEY `id_club` (`id_club`),
-  CONSTRAINT `servicioadicionalclub_ibfk_1` FOREIGN KEY (`id_club`) REFERENCES `club` (`id_club`)
+  CONSTRAINT `servicioadicionalclub_ibfk_1` FOREIGN KEY (`id_club`) REFERENCES `club` (`id_club`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
 
--- Volcando datos para la tabla sisbo.servicioadicionalclub: ~1 rows (aproximadamente)
+-- Volcando datos para la tabla sisbo.servicioadicionalclub: ~2 rows (aproximadamente)
 /*!40000 ALTER TABLE `servicioadicionalclub` DISABLE KEYS */;
 INSERT INTO `servicioadicionalclub` (`id_servicio_club`, `nombre`, `descripcion`, `precio`, `unidades_totales`, `unidades_vendidas`, `id_club`) VALUES
 	(6, 'Camiseta oficial', 'Esta es la camisa amarilla con verde', 150000, 500, 100, 1),
@@ -151,7 +152,7 @@ CREATE TABLE IF NOT EXISTS `servicioadicionalseguidor` (
   `id_seguidor` varchar(20) COLLATE utf8_spanish2_ci DEFAULT NULL,
   PRIMARY KEY (`id_servicio_seguidor`),
   KEY `id_seguidor` (`id_seguidor`),
-  CONSTRAINT `servicioadicionalseguidor_ibfk_1` FOREIGN KEY (`id_seguidor`) REFERENCES `seguidor` (`documento_de_identidad`)
+  CONSTRAINT `servicioadicionalseguidor_ibfk_1` FOREIGN KEY (`id_seguidor`) REFERENCES `seguidor` (`documento_de_identidad`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
 
 -- Volcando datos para la tabla sisbo.servicioadicionalseguidor: ~0 rows (aproximadamente)

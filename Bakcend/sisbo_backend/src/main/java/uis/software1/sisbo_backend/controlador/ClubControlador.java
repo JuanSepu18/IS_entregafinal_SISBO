@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uis.software1.sisbo_backend.modelo.Club;
+import uis.software1.sisbo_backend.modelo.LoginClub;
 import uis.software1.sisbo_backend.servicio.ClubServicio;
 
 /**
@@ -61,6 +62,7 @@ public class ClubControlador {
             obj.setCorreoElectronico(club.getCorreoElectronico());
             obj.setEstadioPropio(club.getEstadioPropio());
             obj.setNombre(club.getNombre());
+            obj.setContrasena(club.getContrasena());
             
             clubServicio.nuevoClub(obj);
         } else{
@@ -81,5 +83,16 @@ public class ClubControlador {
             return new ResponseEntity<>(obj, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(obj, HttpStatus.OK);
+    }
+    
+    //Validar Login
+    @PostMapping("/loginclub")
+    public int login(@RequestBody LoginClub club){
+        return clubServicio.login(club);
+    }
+    
+    @PostMapping("/login")
+    public ResponseEntity<?> loginUser(@RequestBody LoginClub club){
+        return clubServicio.ingresar(club);
     }
 }
