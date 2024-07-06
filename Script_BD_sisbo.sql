@@ -41,8 +41,8 @@ INSERT INTO `boleta` (`id_boleta`, `precio`, `mercado_secundario`, `id_localidad
 -- Volcando estructura para tabla sisbo.club
 CREATE TABLE IF NOT EXISTS `club` (
   `id_club` int(11) NOT NULL AUTO_INCREMENT,
-  `nombre` varchar(300) COLLATE utf8_spanish2_ci NOT NULL,
-  `correo_electronico` varchar(200) COLLATE utf8_spanish2_ci NOT NULL,
+  `nombre` varchar(300) UNIQUE COLLATE utf8_spanish2_ci NOT NULL,
+  `correo_electronico` varchar(200) UNIQUE COLLATE utf8_spanish2_ci NOT NULL,
   `contrasena` varchar(100) COLLATE utf8_spanish2_ci NOT NULL,
   `estadio_propio` varchar(300) COLLATE utf8_spanish2_ci NOT NULL,
   PRIMARY KEY (`id_club`)
@@ -111,7 +111,7 @@ INSERT INTO `localidad` (`id_localidad`, `nombre`, `precio`, `cantidad_puestos_t
 CREATE TABLE IF NOT EXISTS `seguidor` (
   `documento_de_identidad` varchar(20) COLLATE utf8_spanish2_ci NOT NULL,
   `nombre` varchar(255) COLLATE utf8_spanish2_ci NOT NULL,
-  `correo_electronico` varchar(255) COLLATE utf8_spanish2_ci NOT NULL,
+  `correo_electronico` varchar(255) UNIQUE COLLATE utf8_spanish2_ci NOT NULL,
   `contrasena` varchar(255) COLLATE utf8_spanish2_ci NOT NULL,
   PRIMARY KEY (`documento_de_identidad`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;

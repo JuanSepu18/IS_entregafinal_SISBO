@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css'; // Importa Bootstrap CSS
-import './SeguidorDashboard.css'; // Importa el archivo CSS personalizado
+import '../assets/SeguidorDashboard.css'; // Importa el archivo CSS personalizado
+import Navbar from '../components/Navbar';
 
 function SeguidorDashboard({ events }) {
   const [showTickets, setShowTickets] = useState(false);
@@ -31,10 +31,7 @@ function SeguidorDashboard({ events }) {
     }
 
     // Simulando la transferencia de boletas
-    const ticketToTransfer = tickets[0]; // Transferimos la primera boleta como ejemplo
-    setTickets([]);
-    setTransferMessage('Boleta transferida al número de documento ${documento}');
-    setDocumento(''); // Limpiamos el campo de documento después de la transferencia
+
   };
 
   const handleSellTicketSecondaryMarket = () => {
@@ -117,111 +114,114 @@ function SeguidorDashboard({ events }) {
   ];
 
   return (
-    <div className="container mt-4">
-      <h1 className="mb-4">Seguidor Dashboard</h1>
+    <div>
+      <Navbar />
+      <div className="container mt-4">
+        <h1 className="mb-4">{sessionStorage.getItem("name_user")} Dashboard</h1>
 
-      {/* Botones para ver boletas compradas y servicios adicionales */}
-      <div className="mb-4">
-        <button className="btn btn-primary mr-2 btn-separate" onClick={handleToggleTickets}>Ver Boletas Compradas</button>
-        <button className="btn btn-primary btn-separate" onClick={handleToggleServices}>Ver Servicios Adicionales</button>
-      </div>
+        {/* Botones para ver boletas compradas y servicios adicionales */}
+        <div className="mb-4">
+          <button className="btn btn-primary mr-2 btn-separate" onClick={handleToggleTickets}>Ver Boletas Compradas</button>
+          <button className="btn btn-primary btn-separate" onClick={handleToggleServices}>Ver Servicios Adicionales</button>
+        </div>
 
-      {/* Mostrar eventos disponibles */}
-      <div className="mb-4">
-        <h2>Eventos Disponibles</h2>
-        <div className="row">
-          {eventosEjemplo.map((event) => (
-            <div key={event.id} className="col-md-4 mb-4">
-              <div className="card">
-                <div className="card-body">
-                  <strong>Nombre:</strong> {event.name} <br />
-                  <strong>Fecha:</strong> {event.date} <br />
-                  <strong>Ubicación:</strong> {event.location} <br />
-                  <strong>Localidades:</strong>
-                  <ul>
-                    {event.localidades.map((localidad) => (
-                      <li key={localidad.id}>
-                        {localidad.name} - Capacidad: {localidad.capacity} - Boletas Vendidas: {localidad.boletasVendidas}
-                      </li>
-                    ))}
-                  </ul>
-                  <button className="btn btn-primary mt-2" onClick={() => handleComprarBoleta(event.id)}>Comprar Boleta</button>
+        {/* Mostrar eventos disponibles */}
+        <div className="mb-4">
+          <h2>Eventos Disponibles</h2>
+          <div className="row">
+            {eventosEjemplo.map((event) => (
+              <div key={event.id} className="col-md-4 mb-4">
+                <div className="card">
+                  <div className="card-body">
+                    <strong>Nombre:</strong> {event.name} <br />
+                    <strong>Fecha:</strong> {event.date} <br />
+                    <strong>Ubicación:</strong> {event.location} <br />
+                    <strong>Localidades:</strong>
+                    <ul>
+                      {event.localidades.map((localidad) => (
+                        <li key={localidad.id}>
+                          {localidad.name} - Capacidad: {localidad.capacity} - Boletas Vendidas: {localidad.boletasVendidas}
+                        </li>
+                      ))}
+                    </ul>
+                    <button className="btn btn-primary mt-2" onClick={() => handleComprarBoleta(event.id)}>Comprar Boleta</button>
+                  </div>
                 </div>
               </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Sección de compra de boletas */}
+        {selectedEvent && (
+          <div className="mt-4">
+            <h2>Comprar Boleta para {selectedEvent.name}</h2>
+            <div className="form-group">
+              <label htmlFor="localitySelect">Selecciona Localidad</label>
+              <select id="localitySelect" className="form-control" value={selectedLocality} onChange={handleLocalityChange}>
+                <option value="">Selecciona una localidad</option>
+                {selectedEvent.localidades.map((localidad) => (
+                  <option key={localidad.id} value={localidad.name}>{localidad.name}</option>
+                ))}
+              </select>
             </div>
-          ))}
-        </div>
+            <div className="form-group">
+              <label htmlFor="quantity">Cantidad de Boletas</label>
+              <input
+                type="number"
+                id="quantity"
+                className="form-control"
+                value={quantity}
+                onChange={handleQuantityChange}
+                min="1"
+                max="10"
+              />
+            </div>
+            <button className="btn btn-success mt-2" onClick={handleConfirmPurchase}>Confirmar Compra</button>
+          </div>
+        )}
+
+        {/* Sección de boletas compradas */}
+        {showTickets && (
+          <div className="mt-4">
+            <h2>Boletas Compradas</h2>
+            {tickets.length > 0 ? (
+              <ul className="list-group">
+                {tickets.map((ticket) => (
+                  <li key={ticket.id} className="list-group-item">
+                    <strong>Evento:</strong> {ticket.eventName} <br />
+                    <strong>Localidad:</strong> {ticket.locality} <br />
+                    <strong>Cantidad:</strong> {ticket.quantity} <br />
+                    <button className="btn btn-danger mr-2" onClick={handleSellTicketSecondaryMarket}>Vender en mercado secundario</button>
+                    <button className="btn btn-warning" onClick={handleTransferTickets}>Transferir Boleta</button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No tienes boletas compradas.</p>
+            )}
+            {transferMessage && <p>{transferMessage}</p>}
+            {tickets.length > 0 && (
+              <input
+                type="text"
+                value={documento}
+                onChange={handleDocumentoChange}
+                className="form-control mt-2"
+                placeholder="Número de Documento"
+                required
+              />
+            )}
+          </div>
+        )}
+
+        {/* Sección de servicios adicionales */}
+        {showServices && (
+          <div className="mt-4">
+            <h2>Servicios Adicionales</h2>
+            <p>Lista de servicios adicionales disponibles para visualizar.</p>
+          </div>
+        )}
       </div>
-
-      {/* Sección de compra de boletas */}
-      {selectedEvent && (
-        <div className="mt-4">
-          <h2>Comprar Boleta para {selectedEvent.name}</h2>
-          <div className="form-group">
-            <label htmlFor="localitySelect">Selecciona Localidad</label>
-            <select id="localitySelect" className="form-control" value={selectedLocality} onChange={handleLocalityChange}>
-              <option value="">Selecciona una localidad</option>
-              {selectedEvent.localidades.map((localidad) => (
-                <option key={localidad.id} value={localidad.name}>{localidad.name}</option>
-              ))}
-            </select>
-          </div>
-          <div className="form-group">
-            <label htmlFor="quantity">Cantidad de Boletas</label>
-            <input
-              type="number"
-              id="quantity"
-              className="form-control"
-              value={quantity}
-              onChange={handleQuantityChange}
-              min="1"
-              max="10"
-            />
-          </div>
-          <button className="btn btn-success mt-2" onClick={handleConfirmPurchase}>Confirmar Compra</button>
-        </div>
-      )}
-
-      {/* Sección de boletas compradas */}
-      {showTickets && (
-        <div className="mt-4">
-          <h2>Boletas Compradas</h2>
-          {tickets.length > 0 ? (
-            <ul className="list-group">
-              {tickets.map((ticket) => (
-                <li key={ticket.id} className="list-group-item">
-                  <strong>Evento:</strong> {ticket.eventName} <br />
-                  <strong>Localidad:</strong> {ticket.locality} <br />
-                  <strong>Cantidad:</strong> {ticket.quantity} <br />
-                  <button className="btn btn-danger mr-2" onClick={handleSellTicketSecondaryMarket}>Vender en mercado secundario</button>
-                  <button className="btn btn-warning" onClick={handleTransferTickets}>Transferir Boleta</button>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No tienes boletas compradas.</p>
-          )}
-          {transferMessage && <p>{transferMessage}</p>}
-          {tickets.length > 0 && (
-            <input
-              type="text"
-              value={documento}
-              onChange={handleDocumentoChange}
-              className="form-control mt-2"
-              placeholder="Número de Documento"
-              required
-            />
-          )}
-        </div>
-      )}
-
-      {/* Sección de servicios adicionales */}
-      {showServices && (
-        <div className="mt-4">
-          <h2>Servicios Adicionales</h2>
-          <p>Lista de servicios adicionales disponibles para visualizar.</p>
-        </div>
-      )}
     </div>
   );
 }
