@@ -3,6 +3,7 @@ import CreateEventForm from '../components/CreateEventForm';
 import '../assets/ClubDashboard.css'; // Archivo CSS personalizado para estilos adicionales
 import Navbar from '../components/Navbar';
 import APIInvoke from '../utils/APIInvoke';
+import swal from 'sweetalert';
 
 
 function ClubDashboard() {
@@ -10,8 +11,14 @@ function ClubDashboard() {
   const [isNotifyFollowersOpen, setNotifyFollowersOpen] = useState(false);
   const [isConsultarBoletasOpen, setConsultarBoletasOpen] = useState(false);
   const [isCrearServicioOpen, setCrearServicioOpen] = useState(false);
-  const [servicioFormData, setServicioFormData] = useState({ nombre: '', precio: '', descripcion: '' });
+  const [servicioFormData, setServicioFormData] = useState({
+    nombre: '',
+    precio: '',
+    descripcion: '',
+    unidades_totales: ''
+  });
   const [events, setEvents] = useState([]);
+  const [boletasFiltradas, setBoletasFiltradas] = useState([]);
 
   const onCreateEvent = (event) => {
     setEvents([...events, event]);
@@ -39,14 +46,19 @@ function ClubDashboard() {
     setCrearServicioOpen(false);
   };
 
-  const handleConsultarBoletas = (event) => {
-    console.log(`Consultar boletas vendidas para el evento ${event.name}`);
+  const handleConsultarBoletas = async (event) => {
+
+    const response = await APIInvoke.invokeGET(`api/Boleta/list/`);
+    const boletaParaEvento = response.filter(
+      (boletaEvento) => boletaEvento.localidad.eventoDeportivo.id_evento === event)
+
+    setBoletasFiltradas(boletaParaEvento);
+    setSelectedEventId(event);
     setConsultarBoletasOpen(prevState => !prevState);
     setCrearServicioOpen(false);
   };
 
-  const handleCrearServicio = (event) => {
-    console.log(`Crear servicio adicional para el evento ${event.name}`);
+  const handleCrearServicio = () => {
     setCrearServicioOpen(prevState => !prevState);
     setConsultarBoletasOpen(false);
   };
@@ -56,10 +68,44 @@ function ClubDashboard() {
     setServicioFormData({ ...servicioFormData, [name]: value });
   };
 
-  const handleCrearServicioSubmit = (event) => {
-    event.preventDefault();
-    console.log('Datos del formulario de servicio adicional:', servicioFormData);
-    setCrearServicioOpen(false);
+  const handleCrearServicioSubmit = (e) => {
+    e.preventDefault();
+
+    const data = {
+      "nombre": servicioFormData.nombre,
+      "descripcion": servicioFormData.descripcion,
+      "precio": servicioFormData.precio,
+      "unidades_totales": servicioFormData.unidades_totales,
+      "unidades_vendidas": 0,
+      "club": {
+        "idClub": sessionStorage.getItem("id_user")
+      }
+    }
+
+    console.log(data)
+
+    APIInvoke.invokePOST("api/ServicioClub/", data)
+
+    swal({
+      title: "Servicio creado",
+      text: "El servicio adicional ha sido creado satisfactoriamente",
+      icon: "success",
+      buttons: {
+        confirm: {
+          text: "Ok",
+          value: true,
+          visible: true,
+          className: "btn btn-success",
+          closeModal: true,
+        },
+      },
+    })
+      .then((value) => {
+        if (value) {
+          window.location.reload();
+        }
+      });
+
   };
 
   const handleCreateEventSubmit = (formData) => {
@@ -85,6 +131,10 @@ function ClubDashboard() {
     fetchDatosUsuario();
   }, []);
 
+  const [selectedEventId, setSelectedEventId] = useState(null);
+
+
+
   return (
     <div style={{
       position: "absolute",
@@ -103,8 +153,13 @@ function ClubDashboard() {
             <button className="btn btn-primary custom-btn" onClick={handleToggleCreateEvent}
               style={{ "marginRight": "5px" }}>Crear Evento Deportivo</button>
 
+            <button
+              className="btn btn-primary custom-btn" onClick={() => handleCrearServicio()}
+              style={{ "marginRight": "5px" }}>Crear Servicio Adicional</button>
+
             <button className="btn custom-btn" onClick={handleToggleNotifyFollowers}
               style={{ "marginRight": "5px", backgroundColor: "grey", color: "white" }}>Notificar Seguidores</button>
+
           </div>
 
           {isCreateEventOpen && (
@@ -130,6 +185,45 @@ function ClubDashboard() {
             </>
           )}
         </div>
+        {isCrearServicioOpen && (
+          <>
+            <h3>Crear Servicio Adicional</h3>
+            <div className="form mt-3 d-flex justify-content-center align-items-center">
+
+              <form onSubmit={(e) => handleCrearServicioSubmit(e)}>
+                <input
+                  type="text"
+                  className="form-control mb-2 custom-input"
+                  name="nombre"
+                  placeholder="Nombre del servicio"
+                  value={servicioFormData.nombre}
+                  onChange={handleServicioInputChange} required />
+
+                <input
+                  type="number"
+                  className="form-control mb-2 custom-input"
+                  name="precio"
+                  placeholder="Precio"
+                  value={servicioFormData.precio}
+                  onChange={handleServicioInputChange} required />
+                <input
+                  type="number"
+                  className="form-control mb-2 custom-input"
+                  name="unidades_totales"
+                  placeholder="unidades totales"
+                  value={servicioFormData.unidades_totales}
+                  onChange={handleServicioInputChange} required />
+                <textarea
+                  className="form-control mb-2 custom-textarea"
+                  name="descripcion"
+                  placeholder="Descripción"
+                  value={servicioFormData.descripcion}
+                  onChange={handleServicioInputChange}></textarea>
+                <button type="submit" className="btn btn-success custom-btn">Crear Servicio</button>
+              </form>
+            </div>
+          </>
+        )}
 
         <div className="mt-4">
           <h2>Eventos pendientes</h2>
@@ -145,32 +239,32 @@ function ClubDashboard() {
                     <strong>Fecha:</strong> {event.fecha.substring(0, 10)} <br />
                     <strong>Hora de inicio:</strong> {event.hora_ingreso}, <strong>cierre:</strong> {event.hora_cierre} <br />
 
-                    <button className="btn btn-info mr-2 custom-btn" onClick={() => handleConsultarBoletas(event)}>Consultar Boletas Vendidas</button>
-                    <button className="btn btn-warning custom-btn" onClick={() => handleCrearServicio(event)}>Crear Servicio Adicional</button>
-                    {isCrearServicioOpen && (
-                      <div className="form mt-3">
-                        <h3>Crear Servicio Adicional</h3>
-                        <form onSubmit={handleCrearServicioSubmit}>
-                          <input type="text" className="form-control mb-2 custom-input" name="nombre" placeholder="Nombre del servicio" value={servicioFormData.nombre} onChange={handleServicioInputChange} required />
-                          <input type="number" className="form-control mb-2 custom-input" name="precio" placeholder="Precio" value={servicioFormData.precio} onChange={handleServicioInputChange} required />
-                          <textarea className="form-control mb-2 custom-textarea" name="descripcion" placeholder="Descripción" value={servicioFormData.descripcion} onChange={handleServicioInputChange}></textarea>
-                          <button type="submit" className="btn btn-success custom-btn">Crear Servicio</button>
-                        </form>
-                      </div>
-                    )}
-                    {isConsultarBoletasOpen && event.localities && (
+
+                    <button
+                      className="btn btn-info mr-2 custom-btn"
+                      onClick={() => handleConsultarBoletas(event.id_evento)}>Consultar Boletas Vendidas</button>
+                    {isConsultarBoletasOpen && selectedEventId === event.id_evento && (
                       <div className="mt-3">
-                        <h3>Localidades y Boletas Vendidas:</h3>
-                        <ul className="list-group">
-                          {event.localities.map(localidad => (
-                            <li key={localidad.id} className="list-group-item">
-                              <strong>Nombre:</strong> {localidad.name} <br />
-                              <strong>Capacidad:</strong> {localidad.capacity} <br />
-                              <strong>Boletas Vendidas:</strong> {localidad.boletasVendidas} <br />
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+                      <h3>Localidades y Boletas Vendidas:</h3>
+                      <ul className="list-group">
+
+                        {Array.from(
+                          boletasFiltradas.reduce((map, boleta) => {
+                            const nombreLocalidad = boleta.localidad.nombre;
+                            // Si aún no existe la localidad en el Map, la agregamos
+                            if (!map.has(nombreLocalidad)) {
+                              map.set(nombreLocalidad, boleta);
+                            }
+                            return map;
+                          }, new Map()).values()
+                        ).map((boleta, index) => (
+                          <li key={index} className="list-group-item">
+                            <strong>Localidad:</strong> {boleta.localidad.nombre} <br />
+                            <strong>Cantidad de boletas:</strong> {boleta.localidad.cantidad_puestos_vendidos} <br />
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                     )}
                   </li>
                 ))}

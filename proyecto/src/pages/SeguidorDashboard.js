@@ -49,10 +49,10 @@ function SeguidorDashboard({ events }) {
             "precio": (boleta.precio),
             "localidad": {
               "id_localidad": boleta.localidad.id_localidad,
-      
+
               "eventoDeportivo": {
                 "id_evento": boleta.localidad.eventoDeportivo.id_evento,
-      
+
                 "id_club": {
                   "idClub": boleta.localidad.eventoDeportivo.id_club.idClub
                 }
@@ -62,7 +62,7 @@ function SeguidorDashboard({ events }) {
             "mercadoSecundario": false,
             "idBoleta": idBoleta
           }
-          
+
           APIInvoke.invokePUT(`api/Boleta/`, data)
 
           swal({
@@ -244,7 +244,7 @@ function SeguidorDashboard({ events }) {
 
   };
 
-  const confirmarCompra = (dataLocalidad) => {
+  const confirmarCompra = async (dataLocalidad) => {
 
     const data = {
       "precio": dataLocalidad.precio,
@@ -254,7 +254,27 @@ function SeguidorDashboard({ events }) {
       }
     }
 
-    APIInvoke.invokePOST(`api/Boleta/`, data)
+    const boletaNueva = await APIInvoke.invokePOST(`api/Boleta/`, data)
+
+    // sumar 1 boleta a la localidad
+
+    const dataPutLocalidad = {
+      "id_localidad": boletaNueva.localidad.id_localidad,
+      "nombre": boletaNueva.localidad.nombre,
+      "precio": boletaNueva.localidad.precio,
+      "cantidad_puestos_total": boletaNueva.localidad.cantidad_puestos_total,
+      "cantidad_puestos_vendidos": boletaNueva.localidad.cantidad_puestos_vendidos + 1,
+      "eventoDeportivo": {
+        "id_evento": boletaNueva.localidad.eventoDeportivo.id_evento,
+
+        "id_club": {
+          "idClub": boletaNueva.localidad.eventoDeportivo.id_club.idClub
+        }
+      }
+
+    }
+
+    APIInvoke.invokePUT("api/Localidad/", dataPutLocalidad)
 
     swal({
       title: "Boleta comprada",
@@ -280,6 +300,7 @@ function SeguidorDashboard({ events }) {
   // Eventos
   const [eventosDisponibles, setEventosDisponibles] = useState([]);
   const [boletasCompradas, setBoletasCompradas] = useState([]);
+  const [serviciosAdicionales, setServiciosAdicionales] = useState([]);
 
   useEffect(() => {
     const fetchDatosUsuario = async () => {
@@ -301,13 +322,36 @@ function SeguidorDashboard({ events }) {
         alert("Ha ocurrido un error, intente más tarde");
       }
 
+      try {
+        const response = await fetch("http://localhost:8080/api/ServicioClub/list/");
+        const data = await response.json();
+
+        setServiciosAdicionales(data);
+      } catch (error) {
+        console.error("Error al cargar las boletas", error);
+        alert("Ha ocurrido un error, intente más tarde");
+      }
+
     };
 
     fetchDatosUsuario();
   }, []);
 
   const vincularse = () => {
-
+    swal({
+      title: "Funcionalidad limitada",
+      text: "Esta funcionalidad está limitada en este momento.",
+      icon: "info",
+      buttons: {
+        confirm: {
+          text: "Ok",
+          value: true,
+          visible: true,
+          className: "btn btn-primary",
+          closeModal: true,
+        },
+      },
+    });
   }
 
   return (
@@ -326,10 +370,9 @@ function SeguidorDashboard({ events }) {
         {/* Botones para ver boletas compradas y servicios adicionales */}
         <div className="mb-4">
           <button className="btn btn-primary mr-2 btn-separate" onClick={handleToggleTickets}>Ver Boletas Compradas</button>
-          <button className="btn btn-separate" onClick={handleToggleServices}
-            style={{backgroundColor: "grey", color: "white"}}>Ver Servicios Adicionales</button>
+          <button className="btn btn-primary btn-separate" onClick={handleToggleServices}>Ver Servicios Adicionales</button>
           <button className="btn btn-separate" onClick={vincularse}
-            style={{backgroundColor: "grey", color: "white"}}>Vincularme a un club</button>
+            style={{ backgroundColor: "grey", color: "white" }}>Vincularme a un club</button>
         </div>
 
         {/* Mostrar eventos disponibles */}
@@ -387,7 +430,19 @@ function SeguidorDashboard({ events }) {
         {showServices && (
           <div className="mt-4">
             <h2>Servicios Adicionales</h2>
-            <p>Lista de servicios adicionales disponibles para visualizar.</p>
+            <ul className="list-group">
+              {serviciosAdicionales.map((servicio) => (
+                <li key={servicio.id_servicio_club} className="list-group-item">
+                  <strong>Equipo:</strong> {servicio.club.nombre} <br /><br />
+                  <strong>Servicio:</strong> {servicio.nombre} <br />
+                  <strong>Descripcion:</strong> {servicio.descripcion} <br />
+                  <strong>Precio:</strong> {servicio.precio} <br />
+                </li>
+              ))}
+
+            </ul>
+
+
           </div>
         )}
       </div>
