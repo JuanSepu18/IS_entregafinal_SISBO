@@ -1,18 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../assets/SeguidorDashboard.css'; // Importa el archivo CSS personalizado
 import Navbar from '../components/Navbar';
+import APIInvoke from '../utils/APIInvoke';
+import swal from 'sweetalert';
 
 function SeguidorDashboard({ events }) {
   const [showTickets, setShowTickets] = useState(false);
   const [showServices, setShowServices] = useState(false);
-  const [tickets, setTickets] = useState([
-    { id: 1, eventName: 'Partido de Fútbol', locality: 'General', quantity: 2 },
-  ]);
-  const [documento, setDocumento] = useState('');
-  const [transferMessage, setTransferMessage] = useState('');
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [selectedLocality, setSelectedLocality] = useState('');
-  const [quantity, setQuantity] = useState(1);
 
   const handleToggleTickets = () => {
     setShowTickets(!showTickets);
@@ -24,98 +18,305 @@ function SeguidorDashboard({ events }) {
     setShowTickets(false);
   };
 
-  const handleTransferTickets = () => {
-    if (documento.trim() === '') {
-      alert('Por favor ingresa un número de documento válido.');
-      return;
+  const transferirBoleta = (idBoleta) => {
+
+    console.log(idBoleta)
+
+    swal({
+      title: "¿Para quien es la boleta?",
+      text: "Por favor, ingrese el numero de documento de la persona a la que desea transferir su boleta",
+      content: {
+        element: "input",
+        value: "documentoATransferir",
+        attributes: {
+          type: "text",
+        },
+      },
+      buttons: {
+        cancel: "Cancelar",
+        confirm: {
+          text: "Confirmar",
+          closeModal: false,
+        },
+      },
+    })
+      .then(async (documentoATransferir) => {
+        try {
+
+          const boleta = await APIInvoke.invokeGET(`api/Boleta/list/${idBoleta}`);
+
+          const seguidor = await APIInvoke.invokeGET(`api/Seguidor/list/${documentoATransferir}`);
+
+          const data = {
+            "precio": (boleta.precio),
+            "localidad": {
+              "id_localidad": boleta.localidad.id_localidad,
+      
+              "eventoDeportivo": {
+                "id_evento": boleta.localidad.eventoDeportivo.id_evento,
+      
+                "id_club": {
+                  "idClub": boleta.localidad.eventoDeportivo.id_club.idClub
+                }
+              }
+            },
+            "seguidor": seguidor,
+            "mercadoSecundario": false,
+            "idBoleta": idBoleta
+          }
+          
+          APIInvoke.invokePUT(`api/Boleta/`, data)
+
+          swal({
+            title: "Boleta transferida",
+            text: "Ha transferido su boleta satisfactoriamente",
+            icon: "success",
+            buttons: {
+              confirm: {
+                text: "Ok",
+                value: true,
+                visible: true,
+                className: "btn btn-success",
+                closeModal: true,
+              },
+            },
+          })
+            .then((value) => {
+              if (value) {
+                window.location.reload();
+              }
+            });
+
+        } catch (error) {
+          console.error("Error al transferir su boleta:", error);
+          swal("Error", "No se pudo transferir la boleta, el documento que ingresó no es correcto", "error");
+        }
+      })
+      .catch((error) => {
+        if (error) {
+          console.error("Unknown promise rejection reason:", error);
+        }
+      });
+
+  };
+
+  const venderEnMercadoSecundario = (idBoleta) => {
+    swal({
+      title: "Venta de boleta",
+      text: "¿Está seguro que quiere vender su boleta en el mercado secundario? Se le devolverá el 90% del valor de la boleta",
+      buttons: {
+        cancel: {
+          text: "Cancelar",
+          value: "cancelar",
+          visible: true,
+          className: "",
+          closeModal: true,
+        },
+        confirm: {
+          text: "Confirmar",
+          value: "confirmar",
+          closeModal: false,
+        },
+      },
+    }).then(async (value) => {
+      if (value === "confirmar") {
+
+        const boletaVendida = await APIInvoke.invokeGET(`api/Boleta/list/${idBoleta}`)
+
+        console.log('boleta vendida:', boletaVendida);
+
+        confirmarVentaMercadoSecundario(boletaVendida);
+
+      } else if (value === "cancelar") {
+        window.location.reload(); // Recarga la página si se presiona cancelar
+      }
+    }).catch(swal.noop);
+  };
+
+  const confirmarVentaMercadoSecundario = (boletaAVender) => {
+
+    const data = {
+      "precio": (boletaAVender.precio * 0.9),
+      "localidad": {
+        "id_localidad": boletaAVender.localidad.id_localidad,
+
+        "eventoDeportivo": {
+          "id_evento": boletaAVender.localidad.eventoDeportivo.id_evento,
+
+          "id_club": {
+            "idClub": boletaAVender.localidad.eventoDeportivo.id_club.idClub
+          }
+        }
+      },
+      "seguidor": null,
+      "mercadoSecundario": true,
+      "idBoleta": boletaAVender.idBoleta
     }
 
-    // Simulando la transferencia de boletas
+    APIInvoke.invokePUT(`api/Boleta/`, data)
 
-  };
+    swal({
+      title: "Boleta vendida",
+      text: "Ha vendido su boleta satisfactoriamente",
+      icon: "success",
+      buttons: {
+        confirm: {
+          text: "Ok",
+          value: true,
+          visible: true,
+          className: "btn btn-success",
+          closeModal: true,
+        },
+      },
+    })
+      .then((value) => {
+        if (value) {
+          window.location.reload();
+        }
+      });
+  }
 
-  const handleSellTicketSecondaryMarket = () => {
-    if (window.confirm('¿Realmente desea vender esta boleta en el mercado secundario?')) {
-      // Aquí puedes agregar la lógica para eliminar la boleta de la lista
-      setTickets([]);
-      setTransferMessage('Boleta vendida en mercado secundario correctamente.');
-      setDocumento(''); // Limpiamos el campo de documento después de vender en mercado secundario
+  const handleComprarBoleta = async (eventId) => {
+
+    const evento = eventosDisponibles.find((element) => element.id_evento = eventId)
+
+    console.log(evento)
+
+    try {
+      const response = await APIInvoke.invokeGET("api/Localidad/list/");
+
+      const localidades = response.filter(
+        (localidad) => localidad.eventoDeportivo.id_evento === eventId
+      );
+
+
+      if (localidades.length > 0) {
+        // Crear las opciones para el select
+        const localidadesOptions = localidades.map((localidad) => {
+          return `<option value="${localidad.id_localidad}">${localidad.nombre}, valor: ${localidad.precio}</option>`;
+        }).join('');
+
+        // Mostrar swal con el select de localidades
+        swal({
+          title: "Escoja una localidad",
+          text: "Por favor, escoja la localidad de su preferencia.",
+          content: {
+            element: "select",
+            attributes: {
+              innerHTML: localidadesOptions,
+              id: "localidadSelect",
+            },
+          },
+          buttons: {
+            cancel: {
+              text: "Cancelar",
+              value: "cancelar",
+              visible: true,
+              className: "",
+              closeModal: true,
+            },
+            confirm: {
+              text: "Confirmar",
+              value: "confirmar",
+              closeModal: false,
+            },
+          },
+        }).then(async (value) => {
+          if (value === "confirmar") {
+            const id_localidad = document.getElementById('localidadSelect').value;
+
+            const dataLocalidad = await APIInvoke.invokeGET(`api/Localidad/list/${id_localidad}`)
+
+            console.log('Localidad seleccionada:', dataLocalidad);
+
+            confirmarCompra(dataLocalidad); // Llama a la función confirmarCompra con la localidad seleccionada
+          } else if (value === "cancelar") {
+            window.location.reload(); // Recarga la página si se presiona cancelar
+          }
+        }).catch(swal.noop);
+      } else {
+        swal({
+          title: "Error",
+          text: "No hay localidades disponibles para este evento.",
+          icon: "error",
+        }).then(() => {
+          window.location.reload(); // Recarga la página al presionar "OK"
+        });
+      }
+    } catch (error) {
+      console.error("Error al obtener las localidades:", error);
+      swal("Error", "No se pudo obtener la información de las localidades.", "error");
     }
+
   };
 
-  const handleDocumentoChange = (e) => {
-    setDocumento(e.target.value);
-  };
+  const confirmarCompra = (dataLocalidad) => {
 
-  const handleComprarBoleta = (eventId) => {
-    const event = eventosEjemplo.find(e => e.id === eventId);
-    setSelectedEvent(event);
-  };
-
-  const handleLocalityChange = (e) => {
-    setSelectedLocality(e.target.value);
-  };
-
-  const handleQuantityChange = (e) => {
-    setQuantity(e.target.value);
-  };
-
-  const handleConfirmPurchase = () => {
-    if (!selectedLocality) {
-      alert('Por favor selecciona una localidad.');
-      return;
+    const data = {
+      "precio": dataLocalidad.precio,
+      "localidad": dataLocalidad,
+      "seguidor": {
+        "documento_de_identidad": sessionStorage.getItem("id_user")
+      }
     }
 
-    const newTicket = {
-      id: tickets.length + 1,
-      eventName: selectedEvent.name,
-      locality: selectedLocality,
-      quantity: Number(quantity),
+    APIInvoke.invokePOST(`api/Boleta/`, data)
+
+    swal({
+      title: "Boleta comprada",
+      text: "Felicidades, ha comprado la boleta",
+      icon: "success",
+      buttons: {
+        confirm: {
+          text: "Ok",
+          value: true,
+          visible: true,
+          className: "btn btn-success",
+          closeModal: true,
+        },
+      },
+    })
+      .then((value) => {
+        if (value) {
+          window.location.reload();
+        }
+      });
+  };
+
+  // Eventos
+  const [eventosDisponibles, setEventosDisponibles] = useState([]);
+  const [boletasCompradas, setBoletasCompradas] = useState([]);
+
+  useEffect(() => {
+    const fetchDatosUsuario = async () => {
+      try {
+        const response = await APIInvoke.invokeGET("api/Evento/list/");
+        setEventosDisponibles(response);
+      } catch (error) {
+        console.error("Error al cargar los eventos", error);
+        alert("Ha ocurrido un error, intente más tarde");
+      }
+
+      try {
+        const response = await fetch("http://localhost:8080/api/Boleta/list/");
+        const data = await response.json();
+        console.log(data)
+
+        setBoletasCompradas(data);
+      } catch (error) {
+        console.error("Error al cargar las boletas", error);
+        alert("Ha ocurrido un error, intente más tarde");
+      }
+
     };
 
-    setTickets([...tickets, newTicket]);
-    setSelectedEvent(null); // Resetea la selección de evento después de la compra
-    setSelectedLocality('');
-    setQuantity(1);
-  };
-
-  // Eventos de ejemplo con localidades
-  const eventosEjemplo = [
-    {
-      id: 1,
-      name: 'Concierto de Rock',
-      date: '2024-08-15',
-      location: 'Estadio Nacional',
-      localidades: [
-        { id: 1, name: 'VIP', capacity: 100, boletasVendidas: 50 },
-        { id: 2, name: 'General', capacity: 500, boletasVendidas: 300 },
-      ],
-    },
-    {
-      id: 2,
-      name: 'Partido de Baloncesto',
-      date: '2024-08-20',
-      location: 'Polideportivo Municipal',
-      localidades: [
-        { id: 3, name: 'Tribuna', capacity: 200, boletasVendidas: 150 },
-        { id: 4, name: 'Platea', capacity: 300, boletasVendidas: 200 },
-      ],
-    },
-    {
-      id: 3,
-      name: 'Carrera de Autos',
-      date: '2024-09-05',
-      location: 'Circuito de Velocidad',
-      localidades: [
-        { id: 5, name: 'Paddock', capacity: 50, boletasVendidas: 20 },
-        { id: 6, name: 'Gradas', capacity: 500, boletasVendidas: 300 },
-      ],
-    },
-  ];
+    fetchDatosUsuario();
+  }, []);
 
   return (
     <div>
       <Navbar />
+      <div style={{ height: "100px" }}></div>
       <div className="container mt-4">
         <h1 className="mb-4">{sessionStorage.getItem("name_user")} Dashboard</h1>
 
@@ -126,58 +327,26 @@ function SeguidorDashboard({ events }) {
         </div>
 
         {/* Mostrar eventos disponibles */}
-        <div className="mb-4">
-          <h2>Eventos Disponibles</h2>
-          <div className="row">
-            {eventosEjemplo.map((event) => (
-              <div key={event.id} className="col-md-4 mb-4">
-                <div className="card">
-                  <div className="card-body">
-                    <strong>Nombre:</strong> {event.name} <br />
-                    <strong>Fecha:</strong> {event.date} <br />
-                    <strong>Ubicación:</strong> {event.location} <br />
-                    <strong>Localidades:</strong>
-                    <ul>
-                      {event.localidades.map((localidad) => (
-                        <li key={localidad.id}>
-                          {localidad.name} - Capacidad: {localidad.capacity} - Boletas Vendidas: {localidad.boletasVendidas}
-                        </li>
-                      ))}
-                    </ul>
-                    <button className="btn btn-primary mt-2" onClick={() => handleComprarBoleta(event.id)}>Comprar Boleta</button>
+        {!showTickets && !showServices && (
+          <div className="mb-4">
+            <h2>Eventos Disponibles</h2>
+            <div className="row">
+              {eventosDisponibles.map((event) => (
+                <div key={event.id_evento} className="col-md-4 mb-4">
+                  <div className="card">
+                    <div className="card-body" style={{ width: "100%", display: 'block' }}>
+                      <h6><strong>{event.id_club.nombre} vs {event.oponente}</strong></h6> <br />
+                      <strong>Ubicación:</strong> {event.estadio} <br />
+                      <strong>Fecha:</strong> {event.fecha.substring(0, 10)} <br />
+                      <strong>Hora de inicio:</strong> {event.hora_ingreso}, <strong>cierre:</strong> {event.hora_cierre} <br />
+
+                      <button className="btn btn-primary mt-2" onClick={() => handleComprarBoleta(event.id_evento)}>Comprar Boleta</button>
+
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Sección de compra de boletas */}
-        {selectedEvent && (
-          <div className="mt-4">
-            <h2>Comprar Boleta para {selectedEvent.name}</h2>
-            <div className="form-group">
-              <label htmlFor="localitySelect">Selecciona Localidad</label>
-              <select id="localitySelect" className="form-control" value={selectedLocality} onChange={handleLocalityChange}>
-                <option value="">Selecciona una localidad</option>
-                {selectedEvent.localidades.map((localidad) => (
-                  <option key={localidad.id} value={localidad.name}>{localidad.name}</option>
-                ))}
-              </select>
+              ))}
             </div>
-            <div className="form-group">
-              <label htmlFor="quantity">Cantidad de Boletas</label>
-              <input
-                type="number"
-                id="quantity"
-                className="form-control"
-                value={quantity}
-                onChange={handleQuantityChange}
-                min="1"
-                max="10"
-              />
-            </div>
-            <button className="btn btn-success mt-2" onClick={handleConfirmPurchase}>Confirmar Compra</button>
           </div>
         )}
 
@@ -185,31 +354,25 @@ function SeguidorDashboard({ events }) {
         {showTickets && (
           <div className="mt-4">
             <h2>Boletas Compradas</h2>
-            {tickets.length > 0 ? (
+
+            {boletasCompradas.length > 0 ? (
+
               <ul className="list-group">
-                {tickets.map((ticket) => (
-                  <li key={ticket.id} className="list-group-item">
-                    <strong>Evento:</strong> {ticket.eventName} <br />
-                    <strong>Localidad:</strong> {ticket.locality} <br />
-                    <strong>Cantidad:</strong> {ticket.quantity} <br />
-                    <button className="btn btn-danger mr-2" onClick={handleSellTicketSecondaryMarket}>Vender en mercado secundario</button>
-                    <button className="btn btn-warning" onClick={handleTransferTickets}>Transferir Boleta</button>
-                  </li>
-                ))}
+                {boletasCompradas
+                  // Filtrar solo las boletas que tienen un seguidor definido
+                  .filter((boleta) => boleta.seguidor !== null && boleta.seguidor.documento_de_identidad === sessionStorage.getItem("id_user"))
+                  .map((boleta) => (
+                    <li key={boleta.idBoleta} className="list-group-item">
+                      <strong>Evento:</strong> {boleta.localidad.eventoDeportivo.id_club.nombre} vs {boleta.localidad.eventoDeportivo.oponente}<br />
+                      <strong>Localidad:</strong> {boleta.localidad.nombre} <br />
+                      <button className="btn btn-danger mr-2" onClick={() => venderEnMercadoSecundario(boleta.idBoleta)}>Vender en mercado secundario</button>
+                      <button className="btn btn-warning" onClick={() => transferirBoleta(boleta.idBoleta)}>Transferir Boleta</button>
+                    </li>
+                  ))}
               </ul>
+
             ) : (
               <p>No tienes boletas compradas.</p>
-            )}
-            {transferMessage && <p>{transferMessage}</p>}
-            {tickets.length > 0 && (
-              <input
-                type="text"
-                value={documento}
-                onChange={handleDocumentoChange}
-                className="form-control mt-2"
-                placeholder="Número de Documento"
-                required
-              />
             )}
           </div>
         )}
