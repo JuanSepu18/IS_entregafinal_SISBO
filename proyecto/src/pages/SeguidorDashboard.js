@@ -20,8 +20,6 @@ function SeguidorDashboard({ events }) {
 
   const transferirBoleta = (idBoleta) => {
 
-    console.log(idBoleta)
-
     swal({
       title: "¿Para quien es la boleta?",
       text: "Por favor, ingrese el numero de documento de la persona a la que desea transferir su boleta",
@@ -178,10 +176,6 @@ function SeguidorDashboard({ events }) {
 
   const handleComprarBoleta = async (eventId) => {
 
-    const evento = eventosDisponibles.find((element) => element.id_evento = eventId)
-
-    console.log(evento)
-
     try {
       const response = await APIInvoke.invokeGET("api/Localidad/list/");
 
@@ -300,7 +294,6 @@ function SeguidorDashboard({ events }) {
       try {
         const response = await fetch("http://localhost:8080/api/Boleta/list/");
         const data = await response.json();
-        console.log(data)
 
         setBoletasCompradas(data);
       } catch (error) {
@@ -313,17 +306,30 @@ function SeguidorDashboard({ events }) {
     fetchDatosUsuario();
   }, []);
 
+  const vincularse = () => {
+
+  }
+
   return (
-    <div>
+    <div style={{
+      position: "absolute",
+      top: "50px",
+      left: "0%",
+      width: "100%"
+
+    }}>
       <Navbar />
-      <div style={{ height: "100px" }}></div>
+      <div></div>
       <div className="container mt-4">
         <h1 className="mb-4">{sessionStorage.getItem("name_user")} Dashboard</h1>
 
         {/* Botones para ver boletas compradas y servicios adicionales */}
         <div className="mb-4">
           <button className="btn btn-primary mr-2 btn-separate" onClick={handleToggleTickets}>Ver Boletas Compradas</button>
-          <button className="btn btn-primary btn-separate" onClick={handleToggleServices}>Ver Servicios Adicionales</button>
+          <button className="btn btn-separate" onClick={handleToggleServices}
+            style={{backgroundColor: "grey", color: "white"}}>Ver Servicios Adicionales</button>
+          <button className="btn btn-separate" onClick={vincularse}
+            style={{backgroundColor: "grey", color: "white"}}>Vincularme a un club</button>
         </div>
 
         {/* Mostrar eventos disponibles */}

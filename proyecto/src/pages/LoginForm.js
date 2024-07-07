@@ -7,7 +7,7 @@ import APIInvoke from '../utils/APIInvoke';
 
 function LoginForm() {
   sessionStorage.removeItem("id_user");
-  
+
   const navigate = useNavigate();
 
   const [userType, setUserType] = useState('club');
@@ -139,7 +139,7 @@ function LoginForm() {
             <option value="seguidor">Seguidor</option>
           </select>
         </div>
-        <button type="submit">Login</button>
+        <button type="submit" className="btn btn-primary">Login</button>
       </form>
     </div>
   );

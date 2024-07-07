@@ -1,72 +1,206 @@
 // src/components/CreateEventForm.js
 import React, { useState } from 'react';
+import APIInvoke from '../utils/APIInvoke';
+import swal from 'sweetalert';
 
 function CreateEventForm({ onCreateEvent }) {
-  const [name, setName] = useState('');
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [location, setLocation] = useState('');
-  const [localities, setLocalities] = useState([]);
-  const [localityName, setLocalityName] = useState('');
-  const [localityCapacity, setLocalityCapacity] = useState('');
+
+  const [localidades, setLocalidades] = useState([]);
+  const [nombreLocalidad, setNombreLocalidad] = useState('');
+  const [capacidadLocalidad, setCapacidadLocalidad] = useState('');
+  const [precioLocalidad, setPrecioLocalidad] = useState('');
+
 
   const handleAddLocality = () => {
-    if (!localityName || !localityCapacity) {
+    if (!precioLocalidad || !nombreLocalidad || !capacidadLocalidad) {
       alert('Por favor, completa todos los campos de la localidad.');
       return;
     }
-    setLocalities([...localities, { name: localityName, capacity: parseInt(localityCapacity) }]);
-    setLocalityName('');
-    setLocalityCapacity('');
+    setLocalidades([...localidades, {
+      nombre: nombreLocalidad,
+      precio: parseInt(precioLocalidad),
+      cantidad_puestos_total: parseInt(capacidadLocalidad)
+
+    }]);
+    setNombreLocalidad('');
+    setCapacidadLocalidad('');
+    setPrecioLocalidad('');
   };
 
-  const handleSubmit = (e) => {
+  const [eventoNuevo, setEventoNuevo] = useState({
+    oponente: "",
+    estadio: "",
+    fecha: "",
+    hora_ingreso: "",
+    hora_cierre: "",
+  });
+
+  const { oponente, estadio, fecha, hora_ingreso, hora_cierre } = eventoNuevo;
+
+  const setEvento = (e) => {
+    setEventoNuevo({
+      ...eventoNuevo,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name || !date || !time || !location || localities.length === 0) {
-      alert('Por favor, completa todos los campos y añade al menos una localidad.');
-      return;
+
+    if (localidades.length === 0) {
+      swal({
+        title: "Error",
+        text: "Debe ingresar al menos una localidad",
+        icon: "error",
+        buttons: {
+          confirm: {
+            text: "Ok",
+            value: true,
+            visible: true,
+            className: "btn btn-danger",
+            closeModal: true,
+          },
+        },
+      });
+    } else {
+      try {
+        const data = {
+          "oponente": eventoNuevo.oponente,
+          "estadio": eventoNuevo.estadio,
+          "fecha": eventoNuevo.fecha,
+          "hora_ingreso": eventoNuevo.hora_ingreso,
+          "hora_cierre": eventoNuevo.hora_cierre,
+          "id_club": {
+            "idClub": parseInt(sessionStorage.getItem("id_user"), 10)
+          }
+        };
+
+        const eventoCreado = await APIInvoke.invokePOST("api/Evento/", data);
+
+        swal({
+          title: "Evento creado",
+          text: "El evento ha sido creado satisfactoriamente",
+          icon: "success",
+          buttons: {
+            confirm: {
+              text: "Ok",
+              value: true,
+              visible: true,
+              className: "btn btn-success",
+              closeModal: true,
+            },
+          },
+        })
+          .then((value) => {
+
+            if (value) {
+              // Lógica para las localidades
+              localidades.forEach((localidad) => {
+                const data = {
+                  "nombre": localidad.nombre,
+                  "precio": localidad.precio,
+                  "cantidad_puestos_total": localidad.cantidad_puestos_total,
+                  "cantidad_puestos_vendidos": 0,
+                  "eventoDeportivo": {
+                    "id_evento": eventoCreado.id_evento
+
+                  }
+                };
+                
+                APIInvoke.invokePOST("api/Localidad/", data);
+              });
+              window.location.reload();
+            }
+          });
+
+      } catch (error) {
+        console.error("Error al publicar el evento", error);
+        alert("Ha ocurrido un error, intente más tarde");
+      }
     }
-    onCreateEvent({ name, date, time, location, localities });
-    setName('');
-    setDate('');
-    setTime('');
-    setLocation('');
-    setLocalities([]);
+
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <div>
-        <label>Nombre del Evento:</label>
-        <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+        <label>Oponente del partido:</label>
+        <input
+          type="text"
+          value={oponente}
+          name='oponente'
+          onChange={setEvento}
+          required />
       </div>
       <div>
         <label>Fecha del Evento:</label>
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
+        <input
+          type="date"
+          value={fecha}
+          name='fecha'
+          onChange={setEvento}
+          required />
       </div>
       <div>
-        <label>Hora del Evento:</label>
-        <input type="time" value={time} onChange={(e) => setTime(e.target.value)} required />
+        <label>Hora de Ingreso:</label>
+        <input
+          type="time"
+          value={hora_ingreso}
+          name='hora_ingreso'
+          onChange={setEvento}
+          required />
       </div>
       <div>
-        <label>Ubicación del Evento:</label>
-        <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} required />
+        <label>Hora de Salida:</label>
+        <input
+          type="time"
+          value={hora_cierre}
+          name='hora_cierre'
+          onChange={setEvento}
+          required />
       </div>
       <div>
-        <label>Nombre de la Localidad:</label>
-        <input type="text" value={localityName} onChange={(e) => setLocalityName(e.target.value)} />
+        <label>Ubicación del Evento - Estadio:</label>
+        <input
+          type="text"
+          value={estadio}
+          name='estadio'
+          onChange={setEvento}
+          required />
       </div>
-      <div>
-        <label>Capacidad de la Localidad:</label>
-        <input type="number" value={localityCapacity} onChange={(e) => setLocalityCapacity(e.target.value)} />
+      <div className="card" style={{ "backgroundColor": "#e9e9e9" }}>
+        <div>
+          <label>Nombre de la Localidad:</label>
+          <input
+            type="text"
+            value={nombreLocalidad}
+            onChange={(e) => setNombreLocalidad(e.target.value)}
+            style={{ "marginBottom": "5px" }} />
+        </div>
+        <div>
+          <label>Capacidad de la Localidad:</label>
+          <input
+            type="number"
+            value={capacidadLocalidad}
+            onChange={(e) => setCapacidadLocalidad(e.target.value)}
+            style={{ "marginBottom": "5px" }} />
+        </div>
+        <div>
+          <label>Precio de la boleta en la Localidad:</label>
+          <input
+            type="number"
+            value={precioLocalidad}
+            onChange={(e) => setPrecioLocalidad(e.target.value)}
+            style={{ "marginBottom": "5px" }} />
+        </div>
       </div>
-      <button type="button" onClick={handleAddLocality}>Añadir Localidad</button>
+      <button type="button" className='btn btn-info' onClick={handleAddLocality}>Añadir Localidad</button>
       <ul>
-        {localities.map((locality, index) => (
-          <li key={index}>{locality.name} - {locality.capacity} personas</li>
+        {localidades.map((localidad, index) => (
+          <li key={index}>{localidad.nombre} - {localidad.cantidad_puestos_total} personas - {localidad.precio} COP</li>
         ))}
       </ul>
-      <button type="submit">Crear Evento</button>
+      <button type="submit" className='btn btn-success'>Crear Evento</button>
     </form>
   );
 }
