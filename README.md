@@ -36,7 +36,26 @@ Ensure you have the following software installed:
    git clone "https://github.com/JuanSepu18/IS_entregafinal_SISBO"
 
 2. **Set up the MySQL database:**
-  Open HeidiSQL and connect to your MySQL server.
+  Open HeidiSQL and connect to your MySQL server (set "Usuario" as root, "Contraseña" as admin1234 and "Puerto" as 3306).
   Import the provided SQL script to set up the necessary database, tables and data.
   Open the project in Apache Netbeans.
+
+3. **Open the project in Apache Netbeans.**
+   Open the backend project in Netbeans.
+   execute with right click "Run file" the .java file in the path "sisbo_backend/Source  Packages/uis.software1.sisbo_backend/SisboBackendApplication.java".
+
+4. **Setting up the Frontend:**
+    Navigate to the frontend directory:
+    ..\IS_entregafinal_SISBO\proyecto
+
+    Install dependencies:
+        npm install
+        npm install sweetalert
+
+5. **Start the development server:**
+   
+    npm start
+
+Ensure the frontend server is running as described in the setup steps.
+Open your browser and navigate to http://localhost:3000 to access the application.
 
