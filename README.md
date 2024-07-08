@@ -15,6 +15,7 @@ All of this technologies were used in the development of the project and are nee
 - NodeJs
 ## Authors:
 Carlos Esteban Garcia Ortiz - 2210074
+
 Juan Esteban Sepúlveda Tapias - 2210095
 ## User Instructions:
 1. You have to install all the technologies named in "How to Start this prj"
