@@ -28,10 +28,22 @@ CREATE TABLE IF NOT EXISTS `boleta` (
   KEY `id_seguidor` (`id_seguidor`),
   CONSTRAINT `boleta_ibfk_2` FOREIGN KEY (`id_localidad`) REFERENCES `localidad` (`id_localidad`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `boleta_ibfk_4` FOREIGN KEY (`id_seguidor`) REFERENCES `seguidor` (`documento_de_identidad`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
 
 -- Volcando datos para la tabla sisbo.boleta: ~0 rows (aproximadamente)
 /*!40000 ALTER TABLE `boleta` DISABLE KEYS */;
+INSERT INTO `boleta` (`id_boleta`, `precio`, `mercado_secundario`, `id_localidad`, `id_seguidor`) VALUES
+	(1, 300000, 0, 30, '9999999999'),
+	(2, 300000, 0, 30, '9999999999'),
+	(3, 300000, 0, 34, '9999999999'),
+	(4, 300000, 0, 34, '9999999999'),
+	(5, 300000, 0, 30, '1111111111'),
+	(6, 250000, 0, 28, '9999999999'),
+	(7, 250000, 0, 28, '9999999999'),
+	(8, 250000, 0, 31, '9999999999'),
+	(9, 350000, 0, 29, '9999999999'),
+	(10, 350000, 0, 29, '9999999999'),
+	(11, 350000, 0, 29, '9999999999');
 /*!40000 ALTER TABLE `boleta` ENABLE KEYS */;
 
 -- Volcando estructura para tabla sisbo.club
@@ -81,7 +93,7 @@ CREATE TABLE IF NOT EXISTS `eventodeportivo` (
   CONSTRAINT `eventodeportivo_ibfk_1` FOREIGN KEY (`id_club`) REFERENCES `club` (`id_club`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
 
--- Volcando datos para la tabla sisbo.eventodeportivo: ~2 rows (aproximadamente)
+-- Volcando datos para la tabla sisbo.eventodeportivo: ~6 rows (aproximadamente)
 /*!40000 ALTER TABLE `eventodeportivo` DISABLE KEYS */;
 INSERT INTO `eventodeportivo` (`id_evento`, `oponente`, `estadio`, `fecha`, `hora_ingreso`, `hora_cierre`, `id_club`) VALUES
 	(13, 'Atletico Bucaramanga', 'Metropolitano Roberto Meléndez', '2024-07-13', '15:00', '18:00', 9),
@@ -105,7 +117,7 @@ CREATE TABLE IF NOT EXISTS `localidad` (
   CONSTRAINT `localidad_ibfk_1` FOREIGN KEY (`id_evento`) REFERENCES `eventodeportivo` (`id_evento`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
 
--- Volcando datos para la tabla sisbo.localidad: ~8 rows (aproximadamente)
+-- Volcando datos para la tabla sisbo.localidad: ~24 rows (aproximadamente)
 /*!40000 ALTER TABLE `localidad` DISABLE KEYS */;
 INSERT INTO `localidad` (`id_localidad`, `nombre`, `precio`, `cantidad_puestos_total`, `cantidad_puestos_vendidos`, `id_evento`) VALUES
 	(12, 'Occidental', 200000, 5000, 0, 13),
@@ -124,13 +136,13 @@ INSERT INTO `localidad` (`id_localidad`, `nombre`, `precio`, `cantidad_puestos_t
 	(25, 'Occidental', 300000, 3000, 0, 16),
 	(26, 'Oriental', 320000, 2800, 0, 16),
 	(27, 'Sur', 250000, 1000, 0, 16),
-	(28, 'Occidental', 250000, 10000, 0, 17),
-	(29, 'Sur', 350000, 3800, 0, 17),
-	(30, 'Norte', 300000, 4000, 0, 17),
-	(31, 'Oriental', 250000, 9000, 0, 17),
+	(28, 'Occidental', 250000, 10000, 2, 17),
+	(29, 'Sur', 350000, 3800, 3, 17),
+	(30, 'Norte', 300000, 4000, 3, 17),
+	(31, 'Oriental', 250000, 9000, 1, 17),
 	(32, 'Norte', 400000, 5000, 0, 18),
 	(33, 'Sur', 400000, 5000, 0, 18),
-	(34, 'Occidental', 300000, 8000, 0, 18),
+	(34, 'Occidental', 300000, 8000, 2, 18),
 	(35, 'Oriental', 320000, 9000, 0, 18);
 /*!40000 ALTER TABLE `localidad` ENABLE KEYS */;
 
@@ -164,10 +176,12 @@ CREATE TABLE IF NOT EXISTS `servicioadicionalclub` (
   PRIMARY KEY (`id_servicio_club`),
   KEY `id_club` (`id_club`),
   CONSTRAINT `servicioadicionalclub_ibfk_1` FOREIGN KEY (`id_club`) REFERENCES `club` (`id_club`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
 
 -- Volcando datos para la tabla sisbo.servicioadicionalclub: ~0 rows (aproximadamente)
 /*!40000 ALTER TABLE `servicioadicionalclub` DISABLE KEYS */;
+INSERT INTO `servicioadicionalclub` (`id_servicio_club`, `nombre`, `descripcion`, `precio`, `unidades_totales`, `unidades_vendidas`, `id_club`) VALUES
+	(1, 'Camiseta oficial del Atletico Bucaramanga', 'Esta es la camiseta original amarilla del club Atletico Bucaramanga', 290000, 1000, 0, 6);
 /*!40000 ALTER TABLE `servicioadicionalclub` ENABLE KEYS */;
 
 -- Volcando estructura para tabla sisbo.servicioadicionalseguidor

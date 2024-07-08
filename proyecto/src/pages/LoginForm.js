@@ -1,21 +1,31 @@
 // src/components/LoginForm.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import Navbar from '../components/Navbar';
 import swal from "sweetalert";
 import APIInvoke from '../utils/APIInvoke';
 
 function LoginForm() {
-  sessionStorage.removeItem("id_user");
-
   const navigate = useNavigate();
-
   const [userType, setUserType] = useState('club');
 
-  const [usuario, setUsuario] = useState({
-    correo_electronico: "",
-    contrasena: "",
-  });
+  const defaultValues = (type) => {
+    return type === 'seguidor' ?
+      {
+        correo_electronico: 'carlos@gmail.com',
+        contrasena: 'carlos123',
+      } :
+      {
+        correo_electronico: 'atleticoBga@gmail.com',
+        contrasena: 'bucaramanga123',
+      };
+  };
+
+  const [usuario, setUsuario] = useState(defaultValues(userType));
+
+  useEffect(() => {
+    setUsuario(defaultValues(userType));
+  }, [userType]);
 
   const { correo_electronico, contrasena } = usuario;
 
@@ -40,7 +50,7 @@ function LoginForm() {
 
     if (userType === "club") {
       console.log("esto es un club")
-      
+
       const response = await APIInvoke.invokePOST(`api/Club/login`, data);
       const mensaje = response.Mensaje;
 
@@ -69,7 +79,7 @@ function LoginForm() {
           },
         });
       }
-      
+
     } else {
       console.log("esto es un seguidor")
 
@@ -114,6 +124,7 @@ function LoginForm() {
           <input
             type="email"
             name='correo_electronico'
+            placeholder={userType === 'seguidor' ? 'carlos@gmail.com' : 'atleticoBga@gmail.com'}
             value={correo_electronico}
             onChange={setUser}
             required
@@ -122,8 +133,9 @@ function LoginForm() {
         <div>
           <label>Contraseña:</label>
           <input
-            type="password"
+            type="text"
             name='contrasena'
+            placeholder={userType === 'seguidor' ? 'carlos123' : 'bucaramanga123'}
             value={contrasena}
             onChange={setUser}
             required
