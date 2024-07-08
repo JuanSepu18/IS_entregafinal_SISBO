@@ -40,6 +40,9 @@ const Navbar = () => {
                 ) : (
                   <>
                     <li className="nav-item">
+                    <Link to={"/acercaDe"} className="nav-link">Acerca de</Link>
+                    </li>
+                    <li className="nav-item">
                       <Link to={"/"} className="nav-link">Iniciar Sesión</Link>
                     </li>
                     <li className="nav-item">

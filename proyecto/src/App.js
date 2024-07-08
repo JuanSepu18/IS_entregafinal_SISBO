@@ -6,6 +6,7 @@ import SeguidorDashboard from './pages/SeguidorDashboard';
 import ClubDashboard from './pages/ClubDashboard';
 import LoginForm from './pages/LoginForm';
 import RegistroForm from './pages/RegistroForm';
+import AcercaDe from './pages/AcercaDe';
 
 function App() {
   return(
@@ -16,6 +17,7 @@ function App() {
           <Route path='/seguidor' exact element={<SeguidorDashboard/>}/>
           <Route path='/club' exact element={<ClubDashboard/>}/>
           <Route path='/registro' exact element={<RegistroForm/>}/>
+          <Route path='/acercaDe' exact element={<AcercaDe/>}/>
         </Routes>
       </Router>
     </Fragment>
